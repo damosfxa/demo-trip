@@ -12,3 +12,6 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# hasil build statis
+/out

@@ -1,74 +1,50 @@
 "use client";
 
-import { useState } from "react";
-import { ACARA } from "@/lib/acara";
-import { resetContoh, useDataPeserta, type Peserta } from "@/lib/peserta";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { DaftarTrip } from "@/components/panitia/DaftarTrip";
+import { Login } from "@/components/panitia/Login";
+import { PanelTrip } from "@/components/panitia/PanelTrip";
+import { useSesi } from "@/lib/panitia";
+import { siap, supabase } from "@/lib/supabase";
 
-const waktu = (iso: string) => new Date(iso).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+function Isi() {
+  const tripId = useSearchParams().get("trip");
+  const { sesi, peran } = useSesi();
 
-/** Unduh daftar peserta sebagai CSV (bisa dibuka di Excel). */
-function unduhCsv(daftar: Peserta[]) {
-  const baris = [["Nama", "Departemen", "No HP", "Waktu daftar"], ...daftar.map((p) => [p.nama, p.departemen, p.hp, waktu(p.waktu)])];
-  const csv = baris.map((b) => b.map((x) => `"${x.replace(/"/g, '""')}"`).join(",")).join("\n");
-  const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "peserta.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+  if (!siap) return <p className="p-6 text-center text-red-600">Aplikasi belum terhubung ke database (environment belum diisi).</p>;
+  if (sesi === undefined || (sesi && peran === undefined)) return <div className="m-4 h-64 animate-pulse rounded-3xl bg-slate-200" />;
+  if (!sesi) return <Login />;
+  if (!peran) {
+    return (
+      <div className="space-y-3 px-4 pt-16 text-center">
+        <p className="text-lg font-bold">Akun ini belum terdaftar sebagai panitia.</p>
+        <button onClick={() => supabase.auth.signOut()} className="font-semibold text-sky-700">Keluar</button>
+      </div>
+    );
+  }
+
+  const bisaUbah = peran === "owner";
+  return (
+    <div className="space-y-4 px-4 pb-16 pt-5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="truncate text-slate-500">{sesi.user.email}</span>
+        <button onClick={() => supabase.auth.signOut()} className="shrink-0 font-semibold text-slate-500">Keluar</button>
+      </div>
+      {!bisaUbah && (
+        <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
+          Akun demo: bisa melihat semua fitur panitia, tapi tidak bisa mengubah data.
+        </p>
+      )}
+      {tripId ? <PanelTrip id={tripId} bisaUbah={bisaUbah} /> : <DaftarTrip bisaUbah={bisaUbah} />}
+    </div>
+  );
 }
 
-export default function Panitia() {
-  const data = useDataPeserta();
-  const [filter, setFilter] = useState("");
-
-  if (!data) return <div className="h-80 animate-pulse rounded-3xl bg-slate-200" />;
-
-  const per = ACARA.departemen.map((d) => ({ d, n: data.daftar.filter((p) => p.departemen === d).length })).filter((x) => x.n > 0);
-  const tampil = data.daftar.filter((p) => !filter || p.departemen === filter);
-
+export default function HalamanPanitia() {
   return (
-    <section className="space-y-4">
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
-        Halaman panitia. Coba registrasi di tab Peserta, lalu kembali ke sini: nama Anda muncul di daftar.
-      </div>
-
-      <div className="rounded-3xl bg-sky-700 p-6 text-white">
-        <p className="text-sm text-sky-100">Peserta terdaftar</p>
-        <p className="text-4xl font-bold">{data.daftar.length}</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {per.map((x) => (
-            <span key={x.d} className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">{x.d}: {x.n}</span>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-3 rounded-3xl bg-white p-5 shadow-sm">
-        <div className="flex items-center gap-2">
-          <select className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm" value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="">Semua departemen</option>
-            {ACARA.departemen.map((d) => <option key={d}>{d}</option>)}
-          </select>
-          <button onClick={() => unduhCsv(tampil)} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white">Unduh Excel</button>
-        </div>
-        {tampil.length === 0 ? (
-          <p className="py-6 text-center text-sm text-slate-500">Belum ada peserta di departemen ini.</p>
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {tampil.map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">{p.nama}{p.id === data.saya && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-800">Anda</span>}</p>
-                  <p className="text-sm text-slate-500">{p.departemen} · {p.hp}</p>
-                </div>
-                <p className="shrink-0 text-xs text-slate-400">{waktu(p.waktu)}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <button onClick={resetContoh} className="w-full text-center text-sm font-semibold text-slate-500 underline">Kembalikan data contoh</button>
-    </section>
+    <Suspense fallback={null}>
+      <Isi />
+    </Suspense>
   );
 }

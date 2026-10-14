@@ -6,6 +6,7 @@ import { slugDari } from "@/lib/panitia";
 import { pesanError, supabase } from "@/lib/supabase";
 import type { Trip, Zona } from "@/lib/types";
 import { LABEL_ZONA, rentangTanggal } from "@/lib/waktu";
+import { KerangkaDaftarTrip } from "../Kerangka";
 import { Kartu, Label, field, tombol, tombolGaris } from "./ui";
 
 const DEPT_AWAL = ["Keuangan", "HRD", "Marketing", "Operasional", "IT", "Lainnya"];
@@ -41,7 +42,7 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
       {baru && <FormTripBaru onBatal={() => setBaru(false)} onSelesai={() => { setBaru(false); setMuat((x) => x + 1); }} />}
 
       {!trips ? (
-        <div className="h-32 animate-pulse rounded-3xl bg-slate-200" />
+        <KerangkaDaftarTrip />
       ) : trips.length === 0 ? (
         <Kartu><p className="text-center text-slate-500">Belum ada trip.</p></Kartu>
       ) : (

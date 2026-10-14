@@ -4,15 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { muatDataTrip, type DataTrip } from "@/lib/panitia";
 import { pesanError } from "@/lib/supabase";
+import { gayaTema } from "@/lib/tema";
 import { rentangTanggal } from "@/lib/waktu";
+import { KerangkaPanel } from "../Kerangka";
 import { Ringkasan } from "./Ringkasan";
 import { TabAbsensi } from "./TabAbsensi";
+import { TabDokumen } from "./TabDokumen";
 import { TabJadwal } from "./TabJadwal";
 import { TabPengaturan } from "./TabPengaturan";
 import { TabPengumuman } from "./TabPengumuman";
 import { TabPeserta } from "./TabPeserta";
 
-const TABS = ["Ringkasan", "Peserta", "Absensi", "Pengumuman", "Jadwal", "Pengaturan"] as const;
+const TABS = ["Ringkasan", "Peserta", "Absensi", "Dokumen", "Pengumuman", "Jadwal", "Pengaturan"] as const;
 type Tab = (typeof TABS)[number];
 
 export type PropsTab = { data: DataTrip; bisaUbah: boolean; muatUlang: () => void };
@@ -42,12 +45,12 @@ export function PanelTrip({ id, bisaUbah }: { id: string; bisaUbah: boolean }) {
   }, [muatUlang]);
 
   if (error && !data) return <p className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</p>;
-  if (!data) return <div className="h-64 animate-pulse rounded-3xl bg-slate-200" />;
+  if (!data) return <KerangkaPanel />;
 
   const props: PropsTab = { data, bisaUbah, muatUlang };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={gayaTema(data.trip.tema)}>
       <div>
         <Link href="/panitia" className="text-sm font-semibold text-laut-700">← Semua trip</Link>
         <h1 className="mt-1 text-2xl font-extrabold">{data.trip.nama}</h1>
@@ -68,6 +71,7 @@ export function PanelTrip({ id, bisaUbah }: { id: string; bisaUbah: boolean }) {
       {tab === "Ringkasan" && <Ringkasan {...props} />}
       {tab === "Peserta" && <TabPeserta {...props} />}
       {tab === "Absensi" && <TabAbsensi {...props} />}
+      {tab === "Dokumen" && <TabDokumen {...props} />}
       {tab === "Pengumuman" && <TabPengumuman {...props} />}
       {tab === "Jadwal" && <TabJadwal {...props} />}
       {tab === "Pengaturan" && <TabPengaturan {...props} />}

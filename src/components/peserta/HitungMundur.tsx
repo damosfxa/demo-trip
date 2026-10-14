@@ -2,11 +2,12 @@
 
 import { useDetik } from "@/lib/jam";
 import type { Agenda, Trip } from "@/lib/types";
+import { KerangkaHitungMundur } from "../Kerangka";
 
 /** Hitung mundur sampai acara pertama (atau tanggal mulai), berdetak tiap detik. */
 export function HitungMundur({ trip, agenda }: { trip: Trip; agenda: Agenda[] }) {
   const sekarang = useDetik();
-  if (!sekarang) return <div className="kerangka h-24 rounded-3xl" />;
+  if (!sekarang) return <KerangkaHitungMundur />;
 
   const target = agenda[0] ? new Date(agenda[0].mulai).getTime() : Date.parse(`${trip.mulai}T00:00:00+07:00`);
   const sisa = Math.max(0, target - sekarang);

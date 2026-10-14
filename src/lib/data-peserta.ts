@@ -46,8 +46,8 @@ export async function muatSaya(slug: string, token: string): Promise<Hasil<DataS
   }
 }
 
-export async function daftar(slug: string, nama: string, departemen: string, hp: string) {
-  const { data, error } = await supabase.rpc("daftar_peserta", { p_slug: slug, p_nama: nama, p_departemen: departemen, p_hp: hp });
+export async function daftar(slug: string, nama: string, departemen: string, hp: string, isian: Record<string, string> = {}) {
+  const { data, error } = await supabase.rpc("daftar_peserta", { p_slug: slug, p_nama: nama, p_departemen: departemen, p_hp: hp, p_isian: isian });
   if (error) throw new Error(pesanError(error));
   return data as string;
 }

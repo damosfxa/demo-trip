@@ -71,3 +71,11 @@ insert into public.checkins (trip_id, participant_id, titik)
 select p.trip_id, p.id, 'Bandara berangkat' from public.participants p
 join public.trips t on t.id = p.trip_id
 where t.slug = 'family-gathering-bali' and p.nama in ('Andi Pratama', 'Siti Rahma', 'Rudi Hartono');
+
+-- Isian tambahan trip contoh (ukuran kaos, kontak darurat).
+update public.trips set isian = '[{"id":"kaos","label":"Ukuran kaos","pilihan":["S","M","L","XL","XXL"],"wajib":true},{"id":"darurat","label":"Kontak darurat (nama dan nomor)","pilihan":[],"wajib":true},{"id":"catatan","label":"Alergi atau kebutuhan khusus","pilihan":[],"wajib":false}]'
+where slug = 'family-gathering-bali';
+update public.participants p set isian = jsonb_build_object('kaos', x.kaos, 'darurat', x.darurat)
+from (values ('081200000101','L','Rina (istri) 0812xxxx'), ('081200000102','XL','Sari (adik) 0813xxxx'), ('081200000103','M','Budi (suami) 0857xxxx'),
+             ('081200000104','S','Ibu Lestari 0812xxxx'), ('081200000105','L','Wati (istri) 0811xxxx'), ('081200000106','M','Ayah 0819xxxx')) as x(hp, kaos, darurat)
+where p.hp = x.hp;

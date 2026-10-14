@@ -45,6 +45,10 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
       </div>
       {/* Lapisan gelap di bawah supaya teks selalu terbaca */}
       <div className="absolute inset-x-0 bottom-0 h-3/5 bg-laut-950/55 [mask-image:linear-gradient(to_top,black_40%,transparent)]" />
+      {trip.logo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={trip.logo_url} alt={trip.penyelenggara ?? "Logo"} className="anim-pudar absolute left-4 top-4 h-10 max-w-[9rem] rounded-xl bg-white/95 object-contain p-1.5 shadow-sm" />
+      )}
       <div className="relative flex h-full flex-col justify-end px-5 pb-14 text-white">{children}</div>
     </div>
   );

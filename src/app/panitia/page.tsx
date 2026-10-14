@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { KerangkaPanitia } from "@/components/Kerangka";
 import { DaftarTrip } from "@/components/panitia/DaftarTrip";
 import { Login } from "@/components/panitia/Login";
 import { PanelTrip } from "@/components/panitia/PanelTrip";
@@ -13,7 +14,7 @@ function Isi() {
   const { sesi, peran } = useSesi();
 
   if (!siap) return <p className="p-6 text-center text-red-600">Aplikasi belum terhubung ke database (environment belum diisi).</p>;
-  if (sesi === undefined || (sesi && peran === undefined)) return <div className="m-4 h-64 animate-pulse rounded-3xl bg-slate-200" />;
+  if (sesi === undefined || (sesi && peran === undefined)) return <KerangkaPanitia />;
   if (!sesi) return <Login />;
   if (!peran) {
     return (

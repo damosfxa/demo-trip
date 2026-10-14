@@ -101,6 +101,12 @@ body {
   background-size: 800px 100%;
   animation: shimmer 1.4s linear infinite;
 }
+/* Versi untuk latar gelap (sampul) */
+.kerangka-gelap {
+  background: linear-gradient(90deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.22) 120px, rgba(255,255,255,0.10) 240px);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
 
 /* Kilau melintas di kartu peserta */
 .kilau { position: relative; overflow: hidden; isolation: isolate; }
@@ -127,6 +133,16 @@ body {
 /* Sembunyikan scrollbar baris tab yang bisa digeser */
 .tanpa-scrollbar { scrollbar-width: none; }
 .tanpa-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Cetak dokumen panitia: hanya bagian .cetak yang ikut tercetak. */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body { background: #fff; }
+  body * { visibility: hidden; }
+  .cetak, .cetak * { visibility: visible; }
+  .cetak { position: absolute; left: 0; top: 0; width: 100%; }
+  .cetak section { break-inside: avoid; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

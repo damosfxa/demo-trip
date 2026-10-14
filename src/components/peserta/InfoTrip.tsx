@@ -38,7 +38,8 @@ export function InfoTrip({ trip, nama }: { trip: Trip; nama: string }) {
         <div style={{ "--i": 1 } as React.CSSProperties} className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-black/5">
           {peta && (
             <div className="relative h-44 bg-laut-50">
-              <iframe src={peta} title="Peta titik kumpul" loading="lazy" className="h-full w-full border-0 grayscale-[30%]" referrerPolicy="no-referrer-when-downgrade" />
+              <div className="kerangka absolute inset-0" />
+              <iframe src={peta} title="Peta titik kumpul" loading="lazy" className="relative h-full w-full border-0 grayscale-[30%]" referrerPolicy="no-referrer-when-downgrade" />
             </div>
           )}
           <div className="p-5">

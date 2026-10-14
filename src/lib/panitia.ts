@@ -44,7 +44,7 @@ export async function muatDataTrip(id: string): Promise<DataTrip> {
     supabase.from("trips").select("*").eq("id", id).single(),
     supabase.from("agenda").select("*").eq("trip_id", id).order("mulai"),
     supabase.from("announcements").select("*").eq("trip_id", id).order("created_at", { ascending: false }),
-    supabase.from("participants").select("id, trip_id, nama, departemen, hp, bus, kamar, catatan, created_at").eq("trip_id", id).order("nama"),
+    supabase.from("participants").select("id, trip_id, nama, departemen, hp, bus, kamar, catatan, isian, created_at").eq("trip_id", id).order("nama"),
     supabase.from("checkins").select("*").eq("trip_id", id).order("created_at", { ascending: false }),
   ]);
   for (const r of [t, a, n, p, c]) if (r.error) throw r.error;

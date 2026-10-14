@@ -35,7 +35,12 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
       <div className="anim-naik mt-5 overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_40px_-20px_rgba(6,42,61,0.45)] ring-1 ring-black/5">
         <div className="kilau bg-laut-900 px-6 pb-6 pt-5 text-white">
           <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">
-            <span>Boarding pass</span>
+            {trip.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={trip.logo_url} alt="" className="h-7 max-w-[7rem] rounded-md bg-white object-contain p-1" />
+            ) : (
+              <span>Boarding pass</span>
+            )}
             <span>{trip.penyelenggara ?? "Peserta"}</span>
           </div>
           <div className="mt-4 flex items-end justify-between">

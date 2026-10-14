@@ -19,8 +19,15 @@ export type Trip = {
   faq: { q: string; a: string }[];
   titik_absen: string[];
   aktif: boolean;
+  isian: Isian[];
+  logo_url: string | null;
+  tema: Tema;
   created_at: string;
 };
+
+/** Isian registrasi tambahan yang diatur panitia. Pilihan kosong = isian teks bebas. */
+export type Isian = { id: string; label: string; pilihan: string[]; wajib: boolean };
+export type Tema = "laut" | "hutan" | "senja" | "anggur" | "arang";
 
 export type Agenda = { id: string; trip_id: string; mulai: string; selesai: string | null; judul: string; lokasi: string | null; ket: string | null; zona: Zona | null };
 export type Pengumuman = { id: string; trip_id: string; isi: string; created_at: string };
@@ -34,6 +41,7 @@ export type Peserta = {
   bus: string | null;
   kamar: string | null;
   catatan: string | null;
+  isian: Record<string, string>;
   created_at: string;
 };
 
@@ -47,6 +55,7 @@ export type DataSaya = {
   departemen: string;
   bus: string | null;
   kamar: string | null;
+  isian: Record<string, string>;
   teman_sekamar: string[];
   absen: { titik: string; waktu: string }[];
 };

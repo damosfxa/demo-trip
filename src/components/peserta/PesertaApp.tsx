@@ -4,8 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { keluar, kunciToken, muatSaya, muatTrip, type PaketTrip } from "@/lib/data-peserta";
 import { useSekarang } from "@/lib/jam";
 import { useSimpan } from "@/lib/simpan";
+import { gayaTema } from "@/lib/tema";
 import type { DataSaya } from "@/lib/types";
 import { IkonInfo, IkonKalender, IkonKartu, IkonLokasi, IkonRumah, IkonSegar, IkonSinyal } from "../Ikon";
+import { KerangkaBeranda, KerangkaKartu, KerangkaRegistrasi } from "../Kerangka";
 import { Beranda } from "./Beranda";
 import { InfoTrip } from "./InfoTrip";
 import { Jadwal } from "./Jadwal";
@@ -19,22 +21,6 @@ const TABS: { id: Tab; label: string; Ikon: typeof IkonRumah }[] = [
   { id: "kartu", label: "Kartu", Ikon: IkonKartu },
   { id: "info", label: "Info", Ikon: IkonInfo },
 ];
-
-function Memuat() {
-  return (
-    <div>
-      <div className="kerangka h-[22rem]" />
-      <div className="-mt-9 space-y-4 px-4">
-        <div className="kerangka h-28 rounded-3xl" />
-        <div className="grid grid-cols-2 gap-3">
-          <div className="kerangka h-32 rounded-3xl" />
-          <div className="kerangka h-32 rounded-3xl" />
-        </div>
-        <div className="kerangka h-40 rounded-3xl" />
-      </div>
-    </div>
-  );
-}
 
 export function PesertaApp({ slug }: { slug: string }) {
   const token = useSimpan<string>(kunciToken(slug));
@@ -98,8 +84,10 @@ export function PesertaApp({ slug }: { slug: string }) {
       </div>
     );
   }
-  if (!paket || token === undefined) return <Memuat />;
-  if (!token) return <Registrasi trip={paket.trip} />;
+  // Skeleton mengikuti halaman yang akan tampil: registrasi (belum punya token) atau beranda.
+  if (!paket || token === undefined) return token ? <KerangkaBeranda /> : <KerangkaRegistrasi />;
+  // Warna mengikuti tema agen yang dipilih panitia.
+  if (!token) return <div style={gayaTema(paket.trip.tema)}><Registrasi trip={paket.trip} /></div>;
 
   const pindah = (t: Tab) => {
     setTab(t);
@@ -108,7 +96,7 @@ export function PesertaApp({ slug }: { slug: string }) {
   const posisi = TABS.findIndex((t) => t.id === tab);
 
   return (
-    <div className="pb-32">
+    <div className="pb-32" style={gayaTema(paket.trip.tema)}>
       {offline && (
         <p className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-mentari-400 px-4 py-2 text-center text-xs font-bold text-laut-950">
           <IkonSinyal /> Sedang offline, menampilkan data terakhir
@@ -118,7 +106,7 @@ export function PesertaApp({ slug }: { slug: string }) {
       <div key={tab} className="anim-geser">
         {tab === "beranda" && <Beranda paket={paket} saya={saya} sekarang={sekarang} keKartu={() => pindah("kartu")} keJadwal={() => pindah("jadwal")} />}
         {tab === "jadwal" && <Jadwal trip={paket.trip} agenda={paket.agenda} sekarang={sekarang} />}
-        {tab === "kartu" && (saya ? <Kartu trip={paket.trip} saya={saya} /> : <div className="kerangka m-4 h-96 rounded-[2rem]" />)}
+        {tab === "kartu" && (saya ? <Kartu trip={paket.trip} saya={saya} /> : <KerangkaKartu />)}
         {tab === "info" && <InfoTrip trip={paket.trip} nama={saya?.nama ?? ""} />}
       </div>
 

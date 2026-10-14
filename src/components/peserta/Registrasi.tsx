@@ -17,6 +17,7 @@ export function Registrasi({ trip }: { trip: Trip }) {
   const [nama, setNama] = useState("");
   const [departemen, setDepartemen] = useState("");
   const [hp, setHp] = useState("");
+  const [isian, setIsian] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [kirim, setKirim] = useState(false);
   const [berhasil, setBerhasil] = useState(false);
@@ -26,9 +27,11 @@ export function Registrasi({ trip }: { trip: Trip }) {
     setError(null);
     if (nama.trim().length < 2) return setError("Tulis nama lengkap Anda.");
     if (!departemen) return setError("Pilih departemen Anda.");
+    const kosong = trip.isian.find((f) => f.wajib && !(isian[f.id] ?? "").trim());
+    if (kosong) return setError(`${kosong.label} wajib diisi.`);
     setKirim(true);
     try {
-      const token = await daftar(trip.slug, nama, departemen, hp);
+      const token = await daftar(trip.slug, nama, departemen, hp, isian);
       setBerhasil(true);
       // Beri waktu animasi sambutan sebelum masuk ke beranda.
       setTimeout(() => simpanToken(trip.slug, token), 1900);
@@ -69,6 +72,21 @@ export function Registrasi({ trip }: { trip: Trip }) {
           <input id="hp" className={field} value={hp} onChange={(e) => setHp(e.target.value)} placeholder=" " inputMode="tel" autoComplete="tel" />
           <label htmlFor="hp" className={label}>Nomor HP (WhatsApp)</label>
         </div>
+
+        {/* Isian tambahan yang diatur panitia */}
+        {trip.isian.map((f) => (
+          <div key={f.id} className="relative">
+            {f.pilihan.length > 0 ? (
+              <select id={`isian-${f.id}`} className={`${field} appearance-none`} value={isian[f.id] ?? ""} onChange={(e) => setIsian({ ...isian, [f.id]: e.target.value })}>
+                <option value="">Pilih</option>
+                {f.pilihan.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            ) : (
+              <input id={`isian-${f.id}`} className={field} value={isian[f.id] ?? ""} onChange={(e) => setIsian({ ...isian, [f.id]: e.target.value })} placeholder=" " maxLength={200} />
+            )}
+            <label htmlFor={`isian-${f.id}`} className={label}>{f.label}{!f.wajib && " (opsional)"}</label>
+          </div>
+        ))}
 
         {error && <p className="anim-naik rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p>}
 

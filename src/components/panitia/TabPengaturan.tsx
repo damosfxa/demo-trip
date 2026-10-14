@@ -2,13 +2,34 @@
 
 import { useState } from "react";
 import { pesanError, supabase } from "@/lib/supabase";
-import type { Trip, Zona } from "@/lib/types";
+import { TEMA } from "@/lib/tema";
+import type { Isian, Tema, Trip, Zona } from "@/lib/types";
 import { LABEL_ZONA } from "@/lib/waktu";
 import type { PropsTab } from "./PanelTrip";
 import { Kartu, Label, field, tombol } from "./ui";
 
 // Daftar diisi satu baris per item supaya mudah untuk panitia (tanpa form bertingkat).
 const baris = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
+
+// Isian tambahan ditulis satu per baris:  Label* | Pilihan A, Pilihan B   (bintang = wajib, tanpa pilihan = teks bebas).
+const isianKeTeks = (list: Isian[]) => list.map((i) => `${i.label}${i.wajib ? "*" : ""}${i.pilihan.length ? ` | ${i.pilihan.join(", ")}` : ""}`).join("\n");
+
+function teksKeIsian(teks: string, lama: Isian[]): Isian[] {
+  const dipakai = new Set<string>();
+  return baris(teks)
+    .map((b) => {
+      const [kiri, ...kanan] = b.split("|");
+      const wajib = kiri.trim().endsWith("*");
+      const label = kiri.replace(/\*\s*$/, "").trim();
+      const pilihan = kanan.join("|").split(",").map((x) => x.trim()).filter(Boolean);
+      // Pertahankan id lama untuk label yang sama, supaya jawaban peserta yang sudah ada tidak hilang.
+      let id = lama.find((x) => x.label.toLowerCase() === label.toLowerCase())?.id ?? (label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "isian");
+      while (dipakai.has(id)) id += "-2";
+      dipakai.add(id);
+      return { id, label, pilihan, wajib };
+    })
+    .filter((x) => x.label);
+}
 
 function keForm(t: Trip) {
   return {
@@ -20,6 +41,9 @@ function keForm(t: Trip) {
     zona: t.zona,
     titik_kumpul: t.titik_kumpul ?? "",
     cover_url: t.cover_url ?? "",
+    logo_url: t.logo_url ?? "",
+    tema: t.tema,
+    isian: isianKeTeks(t.isian),
     maps_url: t.maps_url ?? "",
     wa_panitia: t.wa_panitia ?? "",
     departemen: t.departemen.join("\n"),
@@ -55,6 +79,9 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
         zona: f.zona,
         titik_kumpul: f.titik_kumpul.trim() || null,
         cover_url: f.cover_url.trim() || null,
+        logo_url: f.logo_url.trim() || null,
+        tema: f.tema,
+        isian: teksKeIsian(f.isian, data.trip.isian),
         maps_url: f.maps_url.trim() || null,
         wa_panitia: f.wa_panitia.replace(/\D/g, "") || null,
         departemen,
@@ -103,6 +130,24 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
       </Kartu>
 
       <Kartu className="space-y-3">
+        <p className="font-bold">Identitas agen</p>
+        <Label teks="Logo agen (opsional)" catatan="Link gambar logo yang diawali https://. Tampil di sampul dan kartu peserta.">
+          <input className={field} value={f.logo_url} onChange={set("logo_url")} placeholder="https://..." disabled={d} />
+        </Label>
+        <div className="space-y-1.5">
+          <span className="text-sm font-semibold">Warna tema</span>
+          <div className="grid grid-cols-5 gap-1">
+            {(Object.keys(TEMA) as Tema[]).map((k) => (
+              <button key={k} type="button" disabled={d} onClick={() => setF({ ...f, tema: k })} className={`flex flex-col items-center gap-1 rounded-xl p-2 text-xs font-semibold ${f.tema === k ? "bg-pasir-100 ring-2 ring-laut-700" : ""}`}>
+                <span className="h-8 w-8 rounded-full" style={{ background: TEMA[k].palet[900], boxShadow: `inset 0 0 0 4px ${TEMA[k].palet[500]}` }} />
+                {TEMA[k].nama}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Kartu>
+
+      <Kartu className="space-y-3">
         <p className="font-bold">Kumpul & kontak</p>
         <Label teks="Titik kumpul"><input className={field} value={f.titik_kumpul} onChange={set("titik_kumpul")} disabled={d} /></Label>
         <Label teks="Link Google Maps" catatan="Buka lokasi di Google Maps, ketuk Bagikan, lalu salin link."><input className={field} value={f.maps_url} onChange={set("maps_url")} disabled={d} /></Label>
@@ -111,6 +156,9 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
 
       <Kartu className="space-y-3">
         <p className="font-bold">Isian dan absensi</p>
+        <Label teks="Isian registrasi tambahan" catatan="Satu per baris, format  Label* | Pilihan A, Pilihan B . Tanda * berarti wajib. Tanpa pilihan berarti isian teks bebas.">
+          <textarea rows={4} className={field} value={f.isian} onChange={set("isian")} placeholder={"Ukuran kaos* | S, M, L, XL\nKontak darurat*\nAlergi makanan"} disabled={d} />
+        </Label>
         <Label teks="Pilihan departemen" catatan="Satu baris satu pilihan."><textarea rows={5} className={field} value={f.departemen} onChange={set("departemen")} disabled={d} /></Label>
         <Label teks="Titik absen" catatan="Tempat panitia scan kartu peserta, satu per baris."><textarea rows={4} className={field} value={f.titik_absen} onChange={set("titik_absen")} disabled={d} /></Label>
       </Kartu>

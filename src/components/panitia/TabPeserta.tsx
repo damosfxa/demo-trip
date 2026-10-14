@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { unduhCsv } from "@/lib/panitia";
 import { pesanError, supabase } from "@/lib/supabase";
-import type { Peserta } from "@/lib/types";
+import type { Isian, Peserta } from "@/lib/types";
 import { relatif, waLink } from "@/lib/waktu";
 import { IkonWa } from "../Ikon";
 import type { PropsTab } from "./PanelTrip";
@@ -20,9 +20,9 @@ export function TabPeserta({ data, bisaUbah, muatUlang }: PropsTab) {
 
   const ekspor = () =>
     unduhCsv(`peserta-${trip.slug}.csv`, [
-      ["Nama", "Departemen", "No HP", "Bus", "Kamar", "Catatan", ...trip.titik_absen, "Waktu daftar"],
+      ["Nama", "Departemen", "No HP", "Bus", "Kamar", ...trip.isian.map((i) => i.label), "Catatan panitia", ...trip.titik_absen, "Waktu daftar"],
       ...tampil.map((p) => [
-        p.nama, p.departemen, p.hp, p.bus, p.kamar, p.catatan,
+        p.nama, p.departemen, p.hp, p.bus, p.kamar, ...trip.isian.map((i) => p.isian?.[i.id] ?? ""), p.catatan,
         ...trip.titik_absen.map((t) => (absen.some((a) => a.participant_id === p.id && a.titik === t) ? "Hadir" : "")),
         relatif(p.created_at),
       ]),
@@ -43,13 +43,13 @@ export function TabPeserta({ data, bisaUbah, muatUlang }: PropsTab) {
       </Kartu>
 
       {tampil.map((p) => (
-        <BarisPeserta key={p.id} p={p} buka={buka === p.id} onBuka={() => setBuka(buka === p.id ? null : p.id)} bisaUbah={bisaUbah} muatUlang={muatUlang} hadir={absen.filter((a) => a.participant_id === p.id).length} totalTitik={trip.titik_absen.length} />
+        <BarisPeserta key={p.id} p={p} isianTrip={trip.isian} buka={buka === p.id} onBuka={() => setBuka(buka === p.id ? null : p.id)} bisaUbah={bisaUbah} muatUlang={muatUlang} hadir={absen.filter((a) => a.participant_id === p.id).length} totalTitik={trip.titik_absen.length} />
       ))}
     </div>
   );
 }
 
-function BarisPeserta({ p, buka, onBuka, bisaUbah, muatUlang, hadir, totalTitik }: { p: Peserta; buka: boolean; onBuka: () => void; bisaUbah: boolean; muatUlang: () => void; hadir: number; totalTitik: number }) {
+function BarisPeserta({ p, isianTrip, buka, onBuka, bisaUbah, muatUlang, hadir, totalTitik }: { p: Peserta; isianTrip: Isian[]; buka: boolean; onBuka: () => void; bisaUbah: boolean; muatUlang: () => void; hadir: number; totalTitik: number }) {
   const [bus, setBus] = useState(p.bus ?? "");
   const [kamar, setKamar] = useState(p.kamar ?? "");
   const [catatan, setCatatan] = useState(p.catatan ?? "");
@@ -89,6 +89,16 @@ function BarisPeserta({ p, buka, onBuka, bisaUbah, muatUlang, hadir, totalTitik 
             <span className="text-slate-500">{p.hp}</span>
             {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 font-semibold text-emerald-700"><IkonWa className="h-4 w-4" /> WhatsApp</a>}
           </div>
+          {isianTrip.length > 0 && (
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-xl bg-pasir-50 p-3 text-sm">
+              {isianTrip.map((i) => (
+                <div key={i.id} className="min-w-0">
+                  <dt className="truncate text-xs text-slate-500">{i.label}</dt>
+                  <dd className="font-semibold text-laut-950">{p.isian?.[i.id] || "-"}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <input className={field} value={bus} onChange={(e) => setBus(e.target.value)} placeholder="Bus (contoh: Bus 1)" disabled={!bisaUbah} />
             <input className={field} value={kamar} onChange={(e) => setKamar(e.target.value)} placeholder="Kamar (contoh: 201)" disabled={!bisaUbah} />

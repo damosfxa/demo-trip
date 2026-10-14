@@ -68,13 +68,13 @@ export function Ringkasan({ data }: PropsTab) {
             Kirim ke grup WA
           </a>
         </div>
-        {qr && (
+        {(
           <div className="flex items-center gap-4 rounded-2xl bg-pasir-50 p-3">
-            <img src={qr} alt="QR link peserta" className="h-24 w-24 rounded-lg bg-white" />
+            {qr ? <img src={qr} alt="QR link peserta" className="anim-pudar h-24 w-24 rounded-lg bg-white" /> : <span className="kerangka block h-24 w-24 rounded-lg" />}
             <div className="text-sm">
               <p className="font-semibold">QR untuk poster atau slide</p>
               <p className="text-slate-500">Peserta cukup memindai untuk registrasi.</p>
-              <a href={qr} download={`qr-${trip.slug}.png`} className="mt-1 inline-block font-semibold text-laut-700">Unduh QR</a>
+              <a href={qr ?? "#"} download={`qr-${trip.slug}.png`} className="mt-1 inline-block font-semibold text-laut-700">Unduh QR</a>
             </div>
           </div>
         )}

@@ -207,3 +207,65 @@ grant execute on function public.daftar_peserta(text, text, text, text) to anon,
 grant execute on function public.data_saya(uuid) to anon, authenticated;
 grant execute on function private.is_staff() to anon, authenticated;
 grant execute on function private.is_owner() to anon, authenticated;
+
+-- ===== Versi 2: isian registrasi yang diatur panitia, logo dan tema warna agen =====
+alter table public.trips add column if not exists isian jsonb not null default '[]';      -- [{id, label, pilihan: [], wajib}]
+alter table public.trips add column if not exists logo_url text check (logo_url is null or logo_url ~ '^https://');
+alter table public.trips add column if not exists tema text not null default 'laut' check (tema in ('laut', 'hutan', 'senja', 'anggur', 'arang'));
+alter table public.participants add column if not exists isian jsonb not null default '{}';
+
+drop function if exists public.daftar_peserta(text, text, text, text);
+create or replace function public.daftar_peserta(p_slug text, p_nama text, p_departemen text, p_hp text, p_isian jsonb default '{}')
+returns uuid language plpgsql security definer set search_path = public as $$
+declare
+  v_trip public.trips;
+  v_hp text := regexp_replace(regexp_replace(coalesce(p_hp, ''), '[^0-9+]', '', 'g'), '^\+62', '0');
+  v_nama text := btrim(regexp_replace(coalesce(p_nama, ''), '\s+', ' ', 'g'));
+  v_lama public.participants;
+  v_token uuid;
+  v_isian jsonb := '{}';
+  f jsonb;
+  v text;
+begin
+  select * into v_trip from public.trips where slug = p_slug and aktif;
+  if not found then raise exception 'Trip tidak ditemukan atau sudah ditutup.'; end if;
+  if length(v_nama) < 2 then raise exception 'Tulis nama lengkap Anda.'; end if;
+  if v_hp !~ '^08[0-9]{8,11}$' then raise exception 'Nomor HP belum benar. Contoh: 0812 3456 7890'; end if;
+  if not (v_trip.departemen ? p_departemen) then raise exception 'Pilih departemen dari daftar.'; end if;
+  -- Hanya simpan isian yang diminta trip ini; periksa yang wajib dan pilihan yang valid.
+  for f in select * from jsonb_array_elements(v_trip.isian) loop
+    v := btrim(coalesce(p_isian ->> (f ->> 'id'), ''));
+    if length(v) > 200 then v := left(v, 200); end if;
+    if v = '' and coalesce((f ->> 'wajib')::boolean, false) then raise exception '% wajib diisi.', f ->> 'label'; end if;
+    if v <> '' and jsonb_array_length(coalesce(f -> 'pilihan', '[]')) > 0 and not ((f -> 'pilihan') ? v) then
+      raise exception 'Pilih % dari daftar.', f ->> 'label';
+    end if;
+    if v <> '' then v_isian := v_isian || jsonb_build_object(f ->> 'id', v); end if;
+  end loop;
+  select * into v_lama from public.participants where trip_id = v_trip.id and hp = v_hp;
+  if found then
+    if lower(v_lama.nama) = lower(v_nama) then
+      update public.participants set isian = v_lama.isian || v_isian where id = v_lama.id;
+      return v_lama.token;
+    end if;
+    raise exception 'Nomor HP ini sudah terdaftar dengan nama lain. Hubungi panitia.';
+  end if;
+  insert into public.participants (trip_id, nama, departemen, hp, isian)
+  values (v_trip.id, v_nama, p_departemen, v_hp, v_isian) returning token into v_token;
+  return v_token;
+end $$;
+revoke all on function public.daftar_peserta(text, text, text, text, jsonb) from public;
+grant execute on function public.daftar_peserta(text, text, text, text, jsonb) to anon, authenticated;
+
+create or replace function public.data_saya(p_token uuid)
+returns jsonb language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'id', p.id, 'trip_slug', t.slug, 'nama', p.nama, 'departemen', p.departemen, 'bus', p.bus, 'kamar', p.kamar, 'isian', p.isian,
+    'teman_sekamar', coalesce((select jsonb_agg(x.nama order by x.nama) from public.participants x
+      where x.trip_id = p.trip_id and p.kamar is not null and x.kamar = p.kamar and x.id <> p.id), '[]'::jsonb),
+    'absen', coalesce((select jsonb_agg(jsonb_build_object('titik', c.titik, 'waktu', c.created_at) order by c.created_at)
+      from public.checkins c where c.participant_id = p.id), '[]'::jsonb)
+  )
+  from public.participants p join public.trips t on t.id = p.trip_id
+  where p.token = p_token;
+$$;

@@ -56,8 +56,19 @@ export function Pemandangan({ suasana = "siang", className = "" }: { suasana?: S
       {/* Pesawat dengan jejak putus-putus */}
       {!malam && (
         <g className="pesawat">
-          <path d="M-70 18 H-12" stroke="#fff" strokeWidth="2" strokeDasharray="5 6" strokeLinecap="round" opacity="0.8" />
-          <path d="M0 18 L22 14 L30 6 L34 6 L30 15 L40 14 L44 9 L47 9 L45 16 L47 23 L44 23 L40 18 L30 19 L34 28 L30 28 L22 20 L0 20 Z" fill="#fff" />
+          {/* Jejak kondensasi */}
+          <path d="M-90 16.5 H-4" stroke="#fff" strokeWidth="1.4" strokeDasharray="7 7" strokeLinecap="round" opacity="0.7" />
+          <path d="M-60 19.5 H-4" stroke="#fff" strokeWidth="1" strokeDasharray="5 8" strokeLinecap="round" opacity="0.45" />
+          {/* Jet penumpang, tampak samping, menghadap kanan */}
+          <g transform="scale(0.8)">
+            <path d="M25 13.6 L19.5 6.5 H22.6 L31 13.6 Z" fill="#dbe9f0" />
+            <path d="M5.5 14 L1.5 4.2 H5.6 L13 14 Z" fill="#fff" />
+            <path d="M4 14 H44 C50 14 54.2 15.3 56.5 17 C54.2 18.7 50 20 44 20 H7 C4.6 20 3 19 3 17 C3 15.4 3.4 14 4 14 Z" fill="#fff" />
+            <path d="M23 18.2 L15 27.5 H19.4 L33 18.2 Z" fill="#fff" />
+            <path d="M6 17.2 L1.5 21 H5.4 L11 18 Z" fill="#fff" />
+            {[16, 20, 24, 28, 32, 36, 40].map((x) => <circle key={x} cx={x} cy="16.2" r="0.85" fill="#0e5f80" opacity="0.55" />)}
+            <path d="M48.5 15.4 Q51.5 15.6 53.4 16.4 L48.6 16.4 Z" fill="#0e5f80" opacity="0.6" />
+          </g>
         </g>
       )}
 

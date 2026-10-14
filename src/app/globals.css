@@ -84,6 +84,12 @@ body {
   to { opacity: 1; transform: none; }
 }
 
+@keyframes popup-turun {
+  from { opacity: 0; transform: translateY(-120%); }
+  to { opacity: 1; transform: none; }
+}
+/* Pop-up kabar baru dari panitia */
+.popup-turun { animation: popup-turun 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .anim-naik { animation: masuk-naik 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .anim-pudar { animation: masuk-pudar 0.4s ease both; }
 .anim-pop { animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
@@ -133,6 +139,39 @@ body {
 /* Sembunyikan scrollbar baris tab yang bisa digeser */
 .tanpa-scrollbar { scrollbar-width: none; }
 .tanpa-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ===== Skeleton dari tampilan asli =====
+   Halaman asli dirender dengan data terakhir (atau contoh), lalu semua teks diganti batang berkilau
+   selebar teksnya, dan gambar/ikon disembunyikan. Ukuran dan posisinya jadi persis sama. */
+.mode-kerangka { pointer-events: none; user-select: none; }
+.mode-kerangka, .mode-kerangka * { color: transparent !important; text-shadow: none !important; animation: none !important; }
+.mode-kerangka svg, .mode-kerangka img, .mode-kerangka iframe { visibility: hidden !important; }
+.mode-kerangka input, .mode-kerangka select, .mode-kerangka textarea { background: #fff !important; }
+.mode-kerangka :is(h1, h2, h3, p, dt, dd, label, summary, th, td) {
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 0.4rem;
+  background-image: linear-gradient(90deg, #ece4d6 0px, #f6f0e6 120px, #ece4d6 240px) !important;
+  background-size: 800px 100% !important;
+  animation: shimmer 1.4s linear infinite !important;
+}
+.mode-kerangka .kilau::after { display: none; }
+/* Tempat gambar (QR, logo) ikut berkilau walau gambarnya disembunyikan */
+.mode-kerangka button:has(> img) {
+  background-image: linear-gradient(90deg, #ece4d6 0px, #f6f0e6 120px, #ece4d6 240px) !important;
+  background-size: 800px 100% !important;
+  animation: shimmer 1.4s linear infinite !important;
+}
+/* Teks di atas latar gelap (sampul, kartu gelap) memakai batang terang transparan */
+.mode-kerangka :is(.text-white, [class*="bg-laut-9"]) :is(h1, h2, h3, p) {
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.26) 120px, rgba(255,255,255,0.12) 240px) !important;
+}
+/* Kotak ikon berwarna ikut berkilau */
+.mode-kerangka :is([class*="bg-laut-100"], [class*="bg-pasir-200"], [class*="bg-karang-500/15"]):not(div:has(p)) {
+  background-image: linear-gradient(90deg, #ece4d6 0px, #f6f0e6 120px, #ece4d6 240px) !important;
+  background-size: 800px 100% !important;
+  animation: shimmer 1.4s linear infinite !important;
+}
 
 /* Cetak dokumen panitia: hanya bagian .cetak yang ikut tercetak. */
 @media print {

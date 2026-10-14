@@ -61,3 +61,7 @@ export function keluar(slug: string) {
   tulis(kunciToken(slug), null);
   tulis(kunciSaya(slug), null);
 }
+
+/** Salinan data terakhir di HP ini (dipakai untuk menggambar skeleton yang persis sama). */
+export const salinanTrip = (slug: string) => baca<PaketTrip>(kunciTrip(slug));
+export const salinanSaya = (slug: string) => baca<DataSaya>(kunciSaya(slug));

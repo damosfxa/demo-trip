@@ -8,23 +8,28 @@ import { IkonBus, IkonJam, IkonKalender, IkonKasur, IkonLokasi, IkonPanah, IkonT
 import { Hero } from "./Hero";
 import { HitungMundur } from "./HitungMundur";
 
-export function Beranda({ paket, saya, sekarang, keKartu, keJadwal }: { paket: PaketTrip; saya: DataSaya | null; sekarang: number; keKartu: () => void; keJadwal: () => void }) {
-  const { trip, agenda, pengumuman } = paket;
+export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, notifikasi }: { paket: PaketTrip; saya: DataSaya | null; sekarang: number; keKartu: () => void; keJadwal: () => void; notifikasi?: React.ReactNode }) {
+  const { trip, agenda } = paket;
+  // Pengumuman publik dan pesan pribadi peserta ini, terbaru di atas.
+  const pengumuman = [
+    ...paket.pengumuman.map((p) => ({ ...p, pribadi: false })),
+    ...(saya?.pesan ?? []).map((p) => ({ ...p, pribadi: true })),
+  ].sort((a, b) => b.created_at.localeCompare(a.created_at));
   const f = fase(trip.mulai, trip.selesai, trip.zona, sekarang);
   const { sedang, berikut } = statusAgenda(agenda, sekarang);
 
   return (
     <div>
       <Hero trip={trip} sekarang={sekarang}>
-        <p className="anim-naik text-sm font-medium text-white/85">Halo, {saya?.nama.split(" ")[0] ?? "peserta"}</p>
-        <h1 className="anim-naik text-5xl font-extrabold tracking-tight drop-shadow-sm" style={{ animationDelay: "80ms" }}>{trip.tujuan}</h1>
-        <p className="anim-naik mt-1 font-medium text-white/90" style={{ animationDelay: "140ms" }}>{trip.nama}</p>
-        <div className="anim-naik mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md" style={{ animationDelay: "200ms" }}>
+        <p className="text-sm font-medium text-white/85">Halo, {saya?.nama.split(" ")[0] ?? "peserta"}</p>
+        <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-sm">{trip.tujuan}</h1>
+        <p className="mt-1 font-medium text-white/90">{trip.nama}</p>
+        <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md">
           <IkonKalender className="h-4 w-4" /> {rentangTanggal(trip.mulai, trip.selesai)}
         </div>
       </Hero>
 
-      <div className="bertahap relative -mt-9 space-y-4 px-4">
+      <div className="relative -mt-9 space-y-4 px-4">
         {f.jenis === "sebelum" && <div style={{ "--i": 0 } as React.CSSProperties}><HitungMundur trip={trip} agenda={agenda} /></div>}
         {f.jenis !== "sebelum" && (
           <div style={{ "--i": 0 } as React.CSSProperties} className="rounded-3xl bg-white p-5 text-center shadow-[0_12px_30px_-12px_rgba(6,42,61,0.35)] ring-1 ring-black/5">
@@ -78,6 +83,8 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal }: { paket: P
           </button>
         )}
 
+        {notifikasi}
+
         {/* Pengumuman */}
         <div style={{ "--i": 3 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-3 flex items-center gap-2 font-bold text-laut-950">
@@ -92,8 +99,9 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal }: { paket: P
                 const umur = sekarang - new Date(p.created_at).getTime();
                 const baru = umur >= 0 && umur < 86400_000;
                 return (
-                  <li key={p.id} className={`relative rounded-2xl p-4 ${baru ? "bg-mentari-400/15 ring-1 ring-mentari-400/50" : "bg-pasir-50"}`}>
+                  <li key={p.id} className={`relative rounded-2xl p-4 ${p.pribadi ? "bg-karang-500/10 ring-1 ring-karang-500/30" : baru ? "bg-mentari-400/15 ring-1 ring-mentari-400/50" : "bg-pasir-50"}`}>
                     <p className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                      {p.pribadi && <span className="rounded-full bg-karang-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Untuk Anda</span>}
                       {relatif(p.created_at)}
                       {baru && <span className="rounded-full bg-karang-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Baru</span>}
                     </p>

@@ -32,7 +32,7 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
       <h1 className="text-3xl font-extrabold tracking-tight text-laut-950">Kartu peserta</h1>
 
       {/* Boarding pass */}
-      <div className="anim-naik mt-5 overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_40px_-20px_rgba(6,42,61,0.45)] ring-1 ring-black/5">
+      <div className="mt-5 overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_40px_-20px_rgba(6,42,61,0.45)] ring-1 ring-black/5">
         <div className="kilau bg-laut-900 px-6 pb-6 pt-5 text-white">
           <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">
             {trip.logo_url ? (
@@ -81,7 +81,7 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
 
         <div className="flex flex-col items-center px-6 pb-6 pt-2">
           <button onClick={() => setBesar(true)} className="w-48 rounded-2xl bg-white p-2 ring-1 ring-slate-200 transition active:scale-95">
-            {qr ? <img src={qr} alt="QR kartu peserta" className="anim-pudar h-full w-full" /> : <div className="kerangka aspect-square rounded-xl" />}
+            {qr ? <img src={qr} alt="QR kartu peserta" className="h-full w-full" /> : <div className="kerangka aspect-square rounded-xl" />}
           </button>
           <p className="mt-3 text-center text-sm text-slate-500">Tunjukkan ke panitia saat absen. Ketuk untuk memperbesar.</p>
         </div>
@@ -96,7 +96,7 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
             return (
               <div key={t} className={`flex min-h-24 flex-col items-center justify-center rounded-2xl border-2 border-dashed p-3 text-center ${a ? "border-emerald-300 bg-emerald-50" : "border-slate-200"}`}>
                 {a ? (
-                  <div className="anim-pop flex flex-col items-center" style={{ transform: `rotate(${i % 2 ? 6 : -6}deg)` }}>
+                  <div className="flex flex-col items-center" style={{ transform: `rotate(${i % 2 ? 6 : -6}deg)` }}>
                     <span className="rounded-lg border-2 border-emerald-600 px-2 py-0.5 text-xs font-extrabold uppercase tracking-wider text-emerald-700">Hadir</span>
                     <span className="mt-1 text-[11px] text-emerald-700">{relatif(a.waktu)}</span>
                   </div>

@@ -18,18 +18,36 @@ import { TabPeserta } from "./TabPeserta";
 const TABS = ["Ringkasan", "Peserta", "Absensi", "Dokumen", "Pengumuman", "Jadwal", "Pengaturan"] as const;
 type Tab = (typeof TABS)[number];
 
+const kunciSalinan = (id: string) => `infotrip:panel:${id}`;
+function bacaSalinan(id: string): DataTrip | null {
+  try {
+    return JSON.parse(sessionStorage.getItem(kunciSalinan(id)) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
 export type PropsTab = { data: DataTrip; bisaUbah: boolean; muatUlang: () => void };
 
 export function PanelTrip({ id, bisaUbah }: { id: string; bisaUbah: boolean }) {
   const [data, setData] = useState<DataTrip | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("Ringkasan");
+  const [sudahPindah, setSudahPindah] = useState(false);
   const [versi, setVersi] = useState(0);
 
   useEffect(() => {
     let aktif = true;
     muatDataTrip(id)
-      .then((d) => aktif && (setData(d), setError(null)))
+      .then((d) => {
+        if (!aktif) return;
+        setData(d);
+        setError(null);
+        // Salinan per tab browser (hilang saat tab ditutup), hanya untuk menggambar skeleton yang sama persis.
+        try {
+          sessionStorage.setItem(kunciSalinan(id), JSON.stringify(d));
+        } catch {}
+      })
       .catch((e) => aktif && setError(pesanError(e)));
     return () => {
       aktif = false;
@@ -45,29 +63,32 @@ export function PanelTrip({ id, bisaUbah }: { id: string; bisaUbah: boolean }) {
   }, [muatUlang]);
 
   if (error && !data) return <p className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</p>;
-  if (!data) return <KerangkaPanel />;
+  // Saat memuat: gambar panel yang sama dari salinan terakhir sebagai skeleton.
+  const tampil = data ?? bacaSalinan(id);
+  if (!tampil) return <KerangkaPanel />;
+  const kerangka = !data;
 
-  const props: PropsTab = { data, bisaUbah, muatUlang };
+  const props: PropsTab = { data: tampil, bisaUbah: bisaUbah && !kerangka, muatUlang };
 
   return (
-    <div className="space-y-4" style={gayaTema(data.trip.tema)}>
+    <div className={`space-y-4 ${kerangka ? "mode-kerangka" : ""}`} aria-busy={kerangka || undefined} style={gayaTema(tampil.trip.tema)}>
       <div>
         <Link href="/panitia" className="text-sm font-semibold text-laut-700">← Semua trip</Link>
-        <h1 className="mt-1 text-2xl font-extrabold">{data.trip.nama}</h1>
-        <p className="text-sm text-slate-500">{data.trip.tujuan} · {rentangTanggal(data.trip.mulai, data.trip.selesai)}{!data.trip.aktif && " · Ditutup"}</p>
+        <h1 className="mt-1 text-2xl font-extrabold">{tampil.trip.nama}</h1>
+        <p className="text-sm text-slate-500">{tampil.trip.tujuan} · {rentangTanggal(tampil.trip.mulai, tampil.trip.selesai)}{!tampil.trip.aktif && " · Ditutup"}</p>
       </div>
 
       <div className="tanpa-scrollbar -mx-4 overflow-x-auto px-4">
         <div className="flex w-max gap-1 rounded-2xl bg-pasir-100 p-1">
           {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`rounded-xl px-3.5 py-2 text-sm font-semibold transition ${tab === t ? "bg-laut-900 text-white shadow-sm" : "text-slate-500"}`}>
+            <button key={t} onClick={() => { setTab(t); setSudahPindah(true); }} className={`rounded-xl px-3.5 py-2 text-sm font-semibold transition ${tab === t ? "bg-laut-900 text-white shadow-sm" : "text-slate-500"}`}>
               {t}
             </button>
           ))}
         </div>
       </div>
 
-      <div key={tab} className="anim-geser">
+      <div key={tab} className={sudahPindah ? "anim-geser" : ""}>
       {tab === "Ringkasan" && <Ringkasan {...props} />}
       {tab === "Peserta" && <TabPeserta {...props} />}
       {tab === "Absensi" && <TabAbsensi {...props} />}

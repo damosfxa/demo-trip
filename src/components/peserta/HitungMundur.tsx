@@ -31,7 +31,7 @@ export function HitungMundur({ trip, agenda }: { trip: Trip; agenda: Agenda[] })
       <div className="grid grid-cols-4 gap-2">
         {kotak.map((k) => (
           <div key={k.l} className="rounded-2xl bg-laut-50 py-2.5 text-center">
-            <p key={k.n} className="anim-pop text-2xl font-extrabold tabular-nums text-laut-900">{String(k.n).padStart(2, "0")}</p>
+            <p className="text-2xl font-extrabold tabular-nums text-laut-900">{String(k.n).padStart(2, "0")}</p>
             <p className="text-[11px] font-medium text-laut-700/80">{k.l}</p>
           </div>
         ))}

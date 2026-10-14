@@ -269,3 +269,101 @@ returns jsonb language sql stable security definer set search_path = public as $
   from public.participants p join public.trips t on t.id = p.trip_id
   where p.token = p_token;
 $$;
+
+-- ===== Versi 3: pesan pribadi dan notifikasi HP (Web Push) =====
+-- Kunci VAPID TIDAK ditulis di file ini. Isi sendiri setelah migrasi:
+--   insert into private.konfigurasi (kunci, nilai) values ('vapid_publik', '...'), ('vapid_privat', '...');
+-- Edge Function pengirim: supabase/functions/kirim-kabar.
+create table if not exists public.pesan_pribadi (
+  id uuid primary key default gen_random_uuid(),
+  trip_id uuid not null references public.trips(id) on delete cascade,
+  participant_id uuid not null references public.participants(id) on delete cascade,
+  isi text not null check (length(isi) between 1 and 1000),
+  created_at timestamptz not null default now()
+);
+create index if not exists pesan_pribadi_peserta_idx on public.pesan_pribadi (participant_id, created_at desc);
+alter table public.pesan_pribadi enable row level security;
+drop policy if exists "staff baca pesan" on public.pesan_pribadi;
+create policy "staff baca pesan" on public.pesan_pribadi for select to authenticated using (private.is_staff());
+drop policy if exists "owner tulis pesan" on public.pesan_pribadi;
+create policy "owner tulis pesan" on public.pesan_pribadi for insert to authenticated with check (private.is_owner());
+drop policy if exists "owner hapus pesan" on public.pesan_pribadi;
+create policy "owner hapus pesan" on public.pesan_pribadi for delete to authenticated using (private.is_owner());
+
+create table if not exists public.push_langganan (
+  id uuid primary key default gen_random_uuid(),
+  trip_id uuid not null references public.trips(id) on delete cascade,
+  participant_id uuid not null references public.participants(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists push_langganan_trip_idx on public.push_langganan (trip_id);
+alter table public.push_langganan enable row level security; -- sengaja tanpa policy: hanya lewat fungsi
+
+create table if not exists private.konfigurasi (kunci text primary key, nilai text not null);
+revoke all on private.konfigurasi from anon, authenticated;
+
+create or replace function public.simpan_langganan(p_token uuid, p_endpoint text, p_p256dh text, p_auth text)
+returns boolean language plpgsql security definer set search_path = public as $$
+declare v_p public.participants;
+begin
+  select * into v_p from public.participants where token = p_token;
+  if not found then raise exception 'Peserta tidak dikenal.'; end if;
+  if p_endpoint !~ '^https://' or length(p_endpoint) > 1000 then raise exception 'Langganan tidak valid.'; end if;
+  insert into public.push_langganan (trip_id, participant_id, endpoint, p256dh, auth)
+  values (v_p.trip_id, v_p.id, p_endpoint, p_p256dh, p_auth)
+  on conflict (endpoint) do update set trip_id = excluded.trip_id, participant_id = excluded.participant_id, p256dh = excluded.p256dh, auth = excluded.auth;
+  return true;
+end $$;
+revoke all on function public.simpan_langganan(uuid, text, text, text) from public;
+grant execute on function public.simpan_langganan(uuid, text, text, text) to anon, authenticated;
+
+create or replace function public.kunci_publik_notifikasi()
+returns text language sql stable security definer set search_path = public as $$
+  select nilai from private.konfigurasi where kunci = 'vapid_publik';
+$$;
+revoke all on function public.kunci_publik_notifikasi() from public;
+grant execute on function public.kunci_publik_notifikasi() to anon, authenticated;
+
+create or replace function public.bahan_kirim_notifikasi(p_trip uuid, p_peserta uuid)
+returns jsonb language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'publik', (select nilai from private.konfigurasi where kunci = 'vapid_publik'),
+    'privat', (select nilai from private.konfigurasi where kunci = 'vapid_privat'),
+    'langganan', coalesce((select jsonb_agg(jsonb_build_object('endpoint', l.endpoint, 'p256dh', l.p256dh, 'auth', l.auth))
+      from public.push_langganan l where l.trip_id = p_trip and (p_peserta is null or l.participant_id = p_peserta)), '[]'::jsonb)
+  );
+$$;
+revoke all on function public.bahan_kirim_notifikasi(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.bahan_kirim_notifikasi(uuid, uuid) to service_role;
+
+create or replace function public.hapus_langganan_mati(p_endpoints text[])
+returns void language sql security definer set search_path = public as $$
+  delete from public.push_langganan where endpoint = any(p_endpoints);
+$$;
+revoke all on function public.hapus_langganan_mati(text[]) from public, anon, authenticated;
+grant execute on function public.hapus_langganan_mati(text[]) to service_role;
+
+create or replace function public.jumlah_langganan(p_trip uuid)
+returns integer language sql stable security definer set search_path = public as $$
+  select case when private.is_staff() then (select count(distinct participant_id)::int from public.push_langganan where trip_id = p_trip) else 0 end;
+$$;
+revoke all on function public.jumlah_langganan(uuid) from public, anon;
+grant execute on function public.jumlah_langganan(uuid) to authenticated;
+
+create or replace function public.data_saya(p_token uuid)
+returns jsonb language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'id', p.id, 'trip_slug', t.slug, 'nama', p.nama, 'departemen', p.departemen, 'bus', p.bus, 'kamar', p.kamar, 'isian', p.isian,
+    'teman_sekamar', coalesce((select jsonb_agg(x.nama order by x.nama) from public.participants x
+      where x.trip_id = p.trip_id and p.kamar is not null and x.kamar = p.kamar and x.id <> p.id), '[]'::jsonb),
+    'absen', coalesce((select jsonb_agg(jsonb_build_object('titik', c.titik, 'waktu', c.created_at) order by c.created_at)
+      from public.checkins c where c.participant_id = p.id), '[]'::jsonb),
+    'pesan', coalesce((select jsonb_agg(jsonb_build_object('id', m.id, 'isi', m.isi, 'created_at', m.created_at) order by m.created_at desc)
+      from (select * from public.pesan_pribadi where participant_id = p.id order by created_at desc limit 30) m), '[]'::jsonb)
+  )
+  from public.participants p join public.trips t on t.id = p.trip_id
+  where p.token = p_token;
+$$;

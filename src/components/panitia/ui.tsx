@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
 // Komponen kecil yang dipakai di halaman panitia.
 
 export const field =
@@ -23,27 +21,9 @@ export function Label({ teks, children, catatan }: { teks: string; children: Rea
   );
 }
 
-/** Angka yang naik perlahan dari 0 saat pertama tampil. */
+/** Angka statistik (tanpa animasi, langsung tampil). */
 export function Angka({ nilai, className = "" }: { nilai: number; className?: string }) {
-  const [tampil, setTampil] = useState(0);
-  const awal = useRef(0);
-
-  useEffect(() => {
-    const dari = awal.current;
-    const mulai = performance.now();
-    let raf = 0;
-    const langkah = (t: number) => {
-      const p = Math.min(1, (t - mulai) / 700);
-      const v = Math.round(dari + (nilai - dari) * (1 - Math.pow(1 - p, 3)));
-      setTampil(v);
-      if (p < 1) raf = requestAnimationFrame(langkah);
-      else awal.current = nilai;
-    };
-    raf = requestAnimationFrame(langkah);
-    return () => cancelAnimationFrame(raf);
-  }, [nilai]);
-
-  return <span className={`tabular-nums ${className}`}>{tampil}</span>;
+  return <span className={`tabular-nums ${className}`}>{nilai}</span>;
 }
 
 export function Batang({ label, nilai, total, warna = "bg-laut-600" }: { label: string; nilai: number; total: number; warna?: string }) {
@@ -54,7 +34,7 @@ export function Batang({ label, nilai, total, warna = "bg-laut-600" }: { label: 
         <span className="font-semibold tabular-nums text-laut-950">{nilai}{total ? <span className="text-slate-400"> / {total}</span> : ""}</span>
       </div>
       <div className="h-2.5 overflow-hidden rounded-full bg-pasir-100">
-        <div className={`anim-isi h-full rounded-full ${warna}`} style={{ width: `${total ? Math.min(100, (nilai / total) * 100) : 0}%` }} />
+        <div className={`h-full rounded-full ${warna}`} style={{ width: `${total ? Math.min(100, (nilai / total) * 100) : 0}%` }} />
       </div>
     </div>
   );

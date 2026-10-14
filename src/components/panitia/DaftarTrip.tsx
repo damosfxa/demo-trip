@@ -9,10 +9,20 @@ import { LABEL_ZONA, rentangTanggal } from "@/lib/waktu";
 import { KerangkaDaftarTrip } from "../Kerangka";
 import { Kartu, Label, field, tombol, tombolGaris } from "./ui";
 
+type TripRingkas = Trip & { jumlah: number };
+const SALINAN = "infotrip:daftar-trip";
+function bacaSalinan(): TripRingkas[] | null {
+  try {
+    return JSON.parse(sessionStorage.getItem(SALINAN) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
 const DEPT_AWAL = ["Keuangan", "HRD", "Marketing", "Operasional", "IT", "Lainnya"];
 
 export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
-  const [trips, setTrips] = useState<(Trip & { jumlah: number })[] | null>(null);
+  const [trips, setTrips] = useState<TripRingkas[] | null>(null);
   const [baru, setBaru] = useState(false);
   const [muat, setMuat] = useState(0);
 
@@ -25,7 +35,11 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
       .then(({ data, error }) => {
         if (!aktif) return;
         if (error) alert(pesanError(error));
-        setTrips(((data ?? []) as (Trip & { participants: { count: number }[] })[]).map((t) => ({ ...t, jumlah: t.participants?.[0]?.count ?? 0 })));
+        const hasil = ((data ?? []) as (Trip & { participants: { count: number }[] })[]).map((t) => ({ ...t, jumlah: t.participants?.[0]?.count ?? 0 }));
+        setTrips(hasil);
+        try {
+          sessionStorage.setItem(SALINAN, JSON.stringify(hasil));
+        } catch {}
       });
     return () => {
       aktif = false;
@@ -42,24 +56,29 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
       {baru && <FormTripBaru onBatal={() => setBaru(false)} onSelesai={() => { setBaru(false); setMuat((x) => x + 1); }} />}
 
       {!trips ? (
-        <KerangkaDaftarTrip />
+        // Skeleton: daftar yang sama dari salinan terakhir, atau bentuk umum pada kunjungan pertama.
+        bacaSalinan()?.length ? <div className="mode-kerangka space-y-4" aria-busy="true">{bacaSalinan()!.map((t) => <BarisTrip key={t.id} t={t} />)}</div> : <KerangkaDaftarTrip />
       ) : trips.length === 0 ? (
         <Kartu><p className="text-center text-slate-500">Belum ada trip.</p></Kartu>
       ) : (
-        trips.map((t) => (
-          <Link key={t.id} href={`/panitia?trip=${t.id}`} className="block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 hover:ring-laut-300">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-bold">{t.nama}</p>
-                <p className="text-sm text-slate-500">{t.tujuan} · {rentangTanggal(t.mulai, t.selesai)}</p>
-              </div>
-              {!t.aktif && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">Ditutup</span>}
-            </div>
-            <p className="mt-3 text-sm"><span className="text-2xl font-extrabold text-laut-700">{t.jumlah}</span> peserta terdaftar</p>
-          </Link>
-        ))
+        trips.map((t) => <BarisTrip key={t.id} t={t} />)
       )}
     </div>
+  );
+}
+
+function BarisTrip({ t }: { t: TripRingkas }) {
+  return (
+    <Link href={`/panitia?trip=${t.id}`} className="block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 hover:ring-laut-300">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-bold">{t.nama}</p>
+          <p className="text-sm text-slate-500">{t.tujuan} · {rentangTanggal(t.mulai, t.selesai)}</p>
+        </div>
+        {!t.aktif && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">Ditutup</span>}
+      </div>
+      <p className="mt-3 text-sm"><span className="text-2xl font-extrabold text-laut-700">{t.jumlah}</span> peserta terdaftar</p>
+    </Link>
   );
 }
 

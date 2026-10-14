@@ -44,9 +44,9 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
             </div>
           </div>
 
-          <p key={`t${idx}`} className="anim-pudar mb-4 mt-3 text-sm font-semibold capitalize text-slate-500">{tanggalPanjang(h.isi[0].mulai, zonaAcara(h.isi[0], trip.zona))}</p>
+          <p key={`t${idx}`} className="mb-4 mt-3 text-sm font-semibold capitalize text-slate-500">{tanggalPanjang(h.isi[0].mulai, zonaAcara(h.isi[0], trip.zona))}</p>
 
-          <ol key={idx} className="bertahap relative space-y-3 pb-4">
+          <ol key={idx} className="relative space-y-3 pb-4">
             {/* Garis waktu */}
             <span className="absolute bottom-6 left-[19px] top-4 w-0.5 rounded bg-laut-100" aria-hidden />
             {h.isi.map((a, i) => {

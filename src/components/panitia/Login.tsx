@@ -27,11 +27,11 @@ export function Login() {
         <Pemandangan suasana="senja" className="absolute inset-0 h-full w-full" />
         <div className="absolute inset-0 bg-laut-950/35" />
         <div className="relative flex h-full flex-col justify-end px-6 pb-12 text-white">
-          <p className="anim-naik text-sm font-semibold text-mentari-400">Info Trip</p>
-          <h1 className="anim-naik text-3xl font-extrabold tracking-tight" style={{ animationDelay: "80ms" }}>Panel panitia</h1>
+          <p className="text-sm font-semibold text-mentari-400">Info Trip</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Panel panitia</h1>
         </div>
       </div>
-      <form onSubmit={masuk} className="anim-naik relative -mt-7 mx-4 space-y-4 rounded-[2rem] bg-white p-5 shadow-[0_20px_40px_-20px_rgba(6,42,61,0.4)] ring-1 ring-black/5" style={{ animationDelay: "160ms" }}>
+      <form onSubmit={masuk} className="relative -mt-7 mx-4 space-y-4 rounded-[2rem] bg-white p-5 shadow-[0_20px_40px_-20px_rgba(6,42,61,0.4)] ring-1 ring-black/5">
         <p className="text-sm text-slate-500">Kelola peserta, jadwal, pengumuman, dan absensi.</p>
         <Label teks="Email">
           <input className={field} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />

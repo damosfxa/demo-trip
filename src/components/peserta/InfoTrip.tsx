@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { kunciCek } from "@/lib/data-peserta";
 import { tulis, useSimpan } from "@/lib/simpan";
 import type { Trip } from "@/lib/types";
@@ -21,13 +22,17 @@ function Cincin({ nilai, total }: { nilai: number; total: number }) {
 
 export function InfoTrip({ trip, nama }: { trip: Trip; nama: string }) {
   const cek = useSimpan<number[]>(kunciCek(trip.slug)) ?? [];
-  const toggle = (i: number) => tulis(kunciCek(trip.slug), cek.includes(i) ? cek.filter((x) => x !== i) : [...cek, i]);
+  const [baruDicentang, setBaruDicentang] = useState<number | null>(null);
+  const toggle = (i: number) => {
+    setBaruDicentang(cek.includes(i) ? null : i);
+    tulis(kunciCek(trip.slug), cek.includes(i) ? cek.filter((x) => x !== i) : [...cek, i]);
+  };
   const wa = waLink(trip.wa_panitia, `Halo panitia ${trip.nama}, saya ${nama}. Saya mau bertanya: `);
   const peta = trip.titik_kumpul ? `https://maps.google.com/maps?q=${encodeURIComponent(trip.titik_kumpul)}&z=15&output=embed` : null;
   const lengkap = trip.checklist.length > 0 && cek.length === trip.checklist.length;
 
   return (
-    <div className="bertahap space-y-4 px-4 pt-6">
+    <div className="space-y-4 px-4 pt-6">
       <div style={{ "--i": 0 } as React.CSSProperties}>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-laut-600">{trip.tujuan}</p>
         <h1 className="text-3xl font-extrabold tracking-tight text-laut-950">Info perjalanan</h1>
@@ -102,7 +107,7 @@ export function InfoTrip({ trip, nama }: { trip: Trip; nama: string }) {
                 <li key={c}>
                   <button onClick={() => toggle(i)} className="flex w-full items-center gap-3 py-3 text-left">
                     <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border-2 transition ${ok ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300"}`}>
-                      {ok && <IkonCentang className="anim-pop h-4 w-4" />}
+                      {ok && <IkonCentang className={`h-4 w-4 ${baruDicentang === i ? "anim-pop" : ""}`} />}
                     </span>
                     <span className={`transition ${ok ? "text-slate-400 line-through" : "text-slate-800"}`}>{c}</span>
                   </button>

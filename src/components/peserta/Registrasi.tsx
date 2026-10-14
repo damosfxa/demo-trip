@@ -44,14 +44,14 @@ export function Registrasi({ trip }: { trip: Trip }) {
   return (
     <div className="pb-10">
       <Hero trip={trip} sekarang={sekarang} tinggi="h-72">
-        <p className="anim-naik text-sm font-medium text-white/85">{trip.penyelenggara ?? "Undangan perjalanan"}</p>
-        <h1 className="anim-naik text-4xl font-extrabold tracking-tight" style={{ animationDelay: "80ms" }}>{trip.nama}</h1>
-        <div className="anim-naik mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md" style={{ animationDelay: "160ms" }}>
+        <p className="text-sm font-medium text-white/85">{trip.penyelenggara ?? "Undangan perjalanan"}</p>
+        <h1 className="text-4xl font-extrabold tracking-tight">{trip.nama}</h1>
+        <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md">
           <IkonKalender className="h-4 w-4" /> {trip.tujuan} · {rentangTanggal(trip.mulai, trip.selesai)}
         </div>
       </Hero>
 
-      <form onSubmit={submit} className="anim-naik relative -mt-8 mx-4 space-y-3 rounded-[2rem] bg-white p-5 shadow-[0_20px_40px_-20px_rgba(6,42,61,0.4)] ring-1 ring-black/5" style={{ animationDelay: "200ms" }}>
+      <form onSubmit={submit} className="relative -mt-8 mx-4 space-y-3 rounded-[2rem] bg-white p-5 shadow-[0_20px_40px_-20px_rgba(6,42,61,0.4)] ring-1 ring-black/5">
         <div className="mb-1">
           <h2 className="text-xl font-extrabold text-laut-950">Registrasi peserta</h2>
           <p className="text-sm text-slate-500">Isi sekali saja. Jadwal, kartu peserta, dan info perjalanan langsung terbuka.</p>

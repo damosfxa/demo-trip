@@ -58,4 +58,8 @@ export type DataSaya = {
   isian: Record<string, string>;
   teman_sekamar: string[];
   absen: { titik: string; waktu: string }[];
+  pesan: PesanPribadi[];
 };
+
+/** Pesan dari panitia untuk satu peserta. */
+export type PesanPribadi = { id: string; isi: string; created_at: string; participant_id?: string; trip_id?: string };

@@ -73,7 +73,7 @@ function BarisPeserta({ p, buka, onBuka, bisaUbah, muatUlang, hadir, totalTitik 
   };
 
   return (
-    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
       <button onClick={onBuka} className="flex w-full items-center justify-between gap-3 p-4 text-left">
         <div className="min-w-0">
           <p className="truncate font-semibold">{p.nama}</p>

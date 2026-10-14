@@ -12,3 +12,12 @@ export const IkonCentang = ({ className = "h-4 w-4" }: P) => (<svg {...base} cla
 export const IkonBus = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><rect x="4" y="3" width="16" height="15" rx="2" /><path d="M4 11h16M8 21v-3M16 21v-3M8 15h.01M16 15h.01" /></svg>);
 export const IkonKasur = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 00-3-3h-7v5" /><circle cx="7" cy="11" r="1.5" /></svg>);
 export const IkonSinyal = ({ className = "h-4 w-4" }: P) => (<svg {...base} className={className}><path d="M2 2l20 20M8.5 16.5a5 5 0 017 0M5 13a10 10 0 015.2-2.8M19 13a10 10 0 00-2.3-1.7M12 20h.01" /></svg>);
+export const IkonPesawat = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><path d="M2 16l20-7-20-7 4 7-4 7zM6 9h7" /></svg>);
+export const IkonToa = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><path d="M3 11v2a1 1 0 001 1h3l6 4V6L7 10H4a1 1 0 00-1 1zM16 9a4 4 0 010 6M19 6a8 8 0 010 12" /></svg>);
+export const IkonJam = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>);
+export const IkonKoper = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><rect x="5" y="7" width="14" height="13" rx="2" /><path d="M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M9 11v5M15 11v5" /></svg>);
+export const IkonTanya = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01" /></svg>);
+export const IkonPasang = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><rect x="6" y="2" width="12" height="20" rx="2.5" /><path d="M12 7v7M9 11l3 3 3-3" /></svg>);
+export const IkonPanah = ({ className = "h-4 w-4" }: P) => (<svg {...base} className={className}><path d="M9 6l6 6-6 6" /></svg>);
+export const IkonOrang = ({ className = "h-5 w-5" }: P) => (<svg {...base} className={className}><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0116 0" /></svg>);
+export const IkonSegar = ({ className = "h-4 w-4" }: P) => (<svg {...base} className={className}><path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7" /></svg>);

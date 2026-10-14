@@ -10,6 +10,7 @@ export type Trip = {
   selesai: string;
   zona: Zona;
   titik_kumpul: string | null;
+  cover_url: string | null;
   maps_url: string | null;
   wa_panitia: string | null;
   departemen: string[];

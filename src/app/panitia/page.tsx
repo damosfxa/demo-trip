@@ -19,7 +19,7 @@ function Isi() {
     return (
       <div className="space-y-3 px-4 pt-16 text-center">
         <p className="text-lg font-bold">Akun ini belum terdaftar sebagai panitia.</p>
-        <button onClick={() => supabase.auth.signOut()} className="font-semibold text-sky-700">Keluar</button>
+        <button onClick={() => supabase.auth.signOut()} className="font-semibold text-laut-700">Keluar</button>
       </div>
     );
   }

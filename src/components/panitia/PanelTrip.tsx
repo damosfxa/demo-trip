@@ -49,27 +49,29 @@ export function PanelTrip({ id, bisaUbah }: { id: string; bisaUbah: boolean }) {
   return (
     <div className="space-y-4">
       <div>
-        <Link href="/panitia" className="text-sm font-semibold text-sky-700">← Semua trip</Link>
+        <Link href="/panitia" className="text-sm font-semibold text-laut-700">← Semua trip</Link>
         <h1 className="mt-1 text-2xl font-extrabold">{data.trip.nama}</h1>
         <p className="text-sm text-slate-500">{data.trip.tujuan} · {rentangTanggal(data.trip.mulai, data.trip.selesai)}{!data.trip.aktif && " · Ditutup"}</p>
       </div>
 
-      <div className="-mx-4 overflow-x-auto px-4">
-        <div className="flex w-max gap-1 rounded-2xl bg-slate-200/70 p-1">
+      <div className="tanpa-scrollbar -mx-4 overflow-x-auto px-4">
+        <div className="flex w-max gap-1 rounded-2xl bg-pasir-100 p-1">
           {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`rounded-xl px-3.5 py-2 text-sm font-semibold ${tab === t ? "bg-white text-sky-800 shadow-sm" : "text-slate-500"}`}>
+            <button key={t} onClick={() => setTab(t)} className={`rounded-xl px-3.5 py-2 text-sm font-semibold transition ${tab === t ? "bg-laut-900 text-white shadow-sm" : "text-slate-500"}`}>
               {t}
             </button>
           ))}
         </div>
       </div>
 
+      <div key={tab} className="anim-geser">
       {tab === "Ringkasan" && <Ringkasan {...props} />}
       {tab === "Peserta" && <TabPeserta {...props} />}
       {tab === "Absensi" && <TabAbsensi {...props} />}
       {tab === "Pengumuman" && <TabPengumuman {...props} />}
       {tab === "Jadwal" && <TabJadwal {...props} />}
       {tab === "Pengaturan" && <TabPengaturan {...props} />}
+      </div>
     </div>
   );
 }

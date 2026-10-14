@@ -22,6 +22,7 @@ create table if not exists public.trips (
   selesai date not null,
   zona text not null default 'Asia/Jakarta' check (zona in ('Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura')),
   titik_kumpul text,
+  cover_url text check (cover_url is null or cover_url ~ '^https://'), -- foto sampul (opsional)
   maps_url text,
   wa_panitia text,
   departemen jsonb not null default '[]',
@@ -85,6 +86,7 @@ create table if not exists public.staff (
 
 -- Kolom yang ditambahkan setelah versi pertama (aman bila sudah ada).
 alter table public.trips add column if not exists zona text not null default 'Asia/Jakarta';
+alter table public.trips add column if not exists cover_url text check (cover_url is null or cover_url ~ '^https://');
 alter table public.agenda add column if not exists zona text check (zona in ('Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'));
 
 -- ===== Fungsi peran =====

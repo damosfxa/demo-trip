@@ -1,18 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { daftar } from "@/lib/data-peserta";
+import { daftar, simpanToken } from "@/lib/data-peserta";
+import { useSekarang } from "@/lib/jam";
 import type { Trip } from "@/lib/types";
 import { rentangTanggal } from "@/lib/waktu";
+import { IkonCentang, IkonKalender, IkonPesawat } from "../Ikon";
+import { Hero } from "./Hero";
 
-const field = "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20";
+const field =
+  "peer w-full rounded-2xl border border-slate-200 bg-white px-4 pb-2.5 pt-6 text-base text-laut-950 outline-none transition focus:border-laut-600 focus:ring-4 focus:ring-laut-500/15";
+const label = "pointer-events-none absolute left-4 top-2 text-xs font-semibold text-slate-500 transition-all peer-focus:text-laut-700";
 
 export function Registrasi({ trip }: { trip: Trip }) {
+  const sekarang = useSekarang();
   const [nama, setNama] = useState("");
   const [departemen, setDepartemen] = useState("");
   const [hp, setHp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [kirim, setKirim] = useState(false);
+  const [berhasil, setBerhasil] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +28,10 @@ export function Registrasi({ trip }: { trip: Trip }) {
     if (!departemen) return setError("Pilih departemen Anda.");
     setKirim(true);
     try {
-      await daftar(trip.slug, nama, departemen, hp);
+      const token = await daftar(trip.slug, nama, departemen, hp);
+      setBerhasil(true);
+      // Beri waktu animasi sambutan sebelum masuk ke beranda.
+      setTimeout(() => simpanToken(trip.slug, token), 1900);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setKirim(false);
@@ -29,45 +39,58 @@ export function Registrasi({ trip }: { trip: Trip }) {
   };
 
   return (
-    <div className="space-y-5 px-4 pb-10 pt-6">
-      <div className="overflow-hidden rounded-3xl bg-sky-700 text-white">
-        <div className="relative px-6 pb-6 pt-8">
-          <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10" />
-          <div className="absolute right-10 top-16 h-12 w-12 rounded-full bg-amber-300/80" />
-          <p className="text-sm font-medium text-sky-100">{trip.penyelenggara}</p>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight">{trip.nama}</h1>
-          <p className="mt-2 text-sky-100">{trip.tujuan} · {rentangTanggal(trip.mulai, trip.selesai)}</p>
+    <div className="pb-10">
+      <Hero trip={trip} sekarang={sekarang} tinggi="h-72">
+        <p className="anim-naik text-sm font-medium text-white/85">{trip.penyelenggara ?? "Undangan perjalanan"}</p>
+        <h1 className="anim-naik text-4xl font-extrabold tracking-tight" style={{ animationDelay: "80ms" }}>{trip.nama}</h1>
+        <div className="anim-naik mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md" style={{ animationDelay: "160ms" }}>
+          <IkonKalender className="h-4 w-4" /> {trip.tujuan} · {rentangTanggal(trip.mulai, trip.selesai)}
         </div>
-      </div>
+      </Hero>
 
-      <form onSubmit={submit} className="space-y-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-        <div>
-          <h2 className="text-lg font-bold">Registrasi peserta</h2>
-          <p className="text-sm text-slate-500">Isi sekali saja. Setelah itu jadwal, kartu peserta, dan info perjalanan langsung terbuka.</p>
+      <form onSubmit={submit} className="anim-naik relative -mt-8 mx-4 space-y-3 rounded-[2rem] bg-white p-5 shadow-[0_20px_40px_-20px_rgba(6,42,61,0.4)] ring-1 ring-black/5" style={{ animationDelay: "200ms" }}>
+        <div className="mb-1">
+          <h2 className="text-xl font-extrabold text-laut-950">Registrasi peserta</h2>
+          <p className="text-sm text-slate-500">Isi sekali saja. Jadwal, kartu peserta, dan info perjalanan langsung terbuka.</p>
         </div>
-        <label className="block space-y-1.5">
-          <span className="text-sm font-semibold">Nama lengkap (sesuai KTP)</span>
-          <input className={field} value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Contoh: Andi Pratama" autoComplete="name" />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="text-sm font-semibold">Departemen</span>
-          <select className={field} value={departemen} onChange={(e) => setDepartemen(e.target.value)}>
+
+        <div className="relative">
+          <input id="nama" className={field} value={nama} onChange={(e) => setNama(e.target.value)} placeholder=" " autoComplete="name" />
+          <label htmlFor="nama" className={label}>Nama lengkap (sesuai KTP)</label>
+        </div>
+        <div className="relative">
+          <select id="dept" className={`${field} appearance-none`} value={departemen} onChange={(e) => setDepartemen(e.target.value)}>
             <option value="">Pilih departemen</option>
             {trip.departemen.map((d) => <option key={d}>{d}</option>)}
           </select>
-        </label>
-        <label className="block space-y-1.5">
-          <span className="text-sm font-semibold">Nomor HP (WhatsApp)</span>
-          <input className={field} value={hp} onChange={(e) => setHp(e.target.value)} placeholder="0812 3456 7890" inputMode="tel" autoComplete="tel" />
-        </label>
-        {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-        <button disabled={kirim} className="w-full rounded-xl bg-sky-700 py-3.5 text-base font-bold text-white hover:bg-sky-800 disabled:opacity-60">
-          {kirim ? "Mendaftarkan..." : "Daftar"}
+          <label htmlFor="dept" className={label}>Departemen</label>
+        </div>
+        <div className="relative">
+          <input id="hp" className={field} value={hp} onChange={(e) => setHp(e.target.value)} placeholder=" " inputMode="tel" autoComplete="tel" />
+          <label htmlFor="hp" className={label}>Nomor HP (WhatsApp)</label>
+        </div>
+
+        {error && <p className="anim-naik rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</p>}
+
+        <button disabled={kirim} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-laut-900 py-4 text-base font-bold text-white shadow-lg shadow-laut-900/25 transition active:scale-[0.98] disabled:opacity-70">
+          {kirim ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <IkonPesawat className="h-5 w-5" />}
+          {kirim ? "Mendaftarkan" : "Daftar dan lihat info"}
         </button>
-        <p className="text-center text-xs leading-relaxed text-slate-500">
-          Sudah pernah daftar di HP lain? Isi nama dan nomor HP yang sama, data Anda akan muncul kembali.
-        </p>
+        <p className="text-center text-xs leading-relaxed text-slate-500">Sudah pernah daftar di HP lain? Isi nama dan nomor HP yang sama.</p>
       </form>
+
+      {berhasil && (
+        <div className="anim-pudar fixed inset-0 z-50 flex flex-col items-center justify-center bg-laut-900 px-8 text-center text-white">
+          <div className="relative">
+            <span className="anim-pop flex h-24 w-24 items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_0_12px_rgba(16,185,129,0.2)]">
+              <IkonCentang className="h-12 w-12" />
+            </span>
+            <IkonPesawat className="pesawat absolute -top-6 left-0 h-7 w-7 text-mentari-400" />
+          </div>
+          <p className="anim-naik mt-8 text-3xl font-extrabold" style={{ animationDelay: "250ms" }}>Selamat bergabung, {nama.trim().split(" ")[0]}!</p>
+          <p className="anim-naik mt-2 text-white/75" style={{ animationDelay: "380ms" }}>Menyiapkan info perjalanan Anda ke {trip.tujuan}.</p>
+        </div>
+      )}
     </div>
   );
 }

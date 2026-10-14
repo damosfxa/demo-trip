@@ -1,1 +1,137 @@
 @import "tailwindcss";
+
+/* Palet: laut dalam, langit, pasir, dan karang untuk aksen. */
+@theme {
+  --color-laut-950: #062a3d;
+  --color-laut-900: #0a3a52;
+  --color-laut-800: #0c4a66;
+  --color-laut-700: #0e5f80;
+  --color-laut-600: #11789f;
+  --color-laut-500: #1a93be;
+  --color-laut-100: #dff1f8;
+  --color-laut-50: #f0f8fb;
+  --color-pasir-50: #fbf8f2;
+  --color-pasir-100: #f5eee1;
+  --color-pasir-200: #eadcc2;
+  --color-karang-500: #f0805f;
+  --color-karang-600: #e2643f;
+  --color-mentari-400: #fbc84b;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-pasir-50);
+}
+
+/* ===== Animasi ===== */
+@keyframes masuk-naik {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes masuk-pudar {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes melayang {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes awan {
+  from { transform: translateX(-160px); }
+  to { transform: translateX(520px); }
+}
+@keyframes ombak {
+  from { transform: translateX(0); }
+  to { transform: translateX(-200px); }
+}
+@keyframes pesawat {
+  0% { transform: translate(-80px, 70px) rotate(-10deg); opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translate(480px, -30px) rotate(-10deg); opacity: 0; }
+}
+@keyframes sinar {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.25); opacity: 0.18; }
+}
+@keyframes kilau {
+  from { transform: translateX(-150%) skewX(-20deg); }
+  to { transform: translateX(400%) skewX(-20deg); }
+}
+@keyframes zoom-pelan {
+  from { transform: scale(1); }
+  to { transform: scale(1.12); }
+}
+@keyframes denyut {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+  100% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+}
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to { background-position: 400px 0; }
+}
+@keyframes isi-lebar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes geser-kiri {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+.anim-naik { animation: masuk-naik 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.anim-pudar { animation: masuk-pudar 0.4s ease both; }
+.anim-pop { animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.anim-melayang { animation: melayang 5s ease-in-out infinite; }
+.anim-denyut { animation: denyut 1.6s ease-out infinite; }
+.anim-isi { transform-origin: left; animation: isi-lebar 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.anim-geser { animation: geser-kiri 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.anim-zoom { animation: zoom-pelan 18s ease-in-out infinite alternate; }
+
+/* Elemen dalam daftar muncul berurutan. Atur urutan dengan style={{ "--i": n }}. */
+.bertahap > * { animation: masuk-naik 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+.kerangka {
+  background: linear-gradient(90deg, #ece4d6 0px, #f6f0e6 120px, #ece4d6 240px);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Kilau melintas di kartu peserta */
+.kilau { position: relative; overflow: hidden; isolation: isolate; }
+.kilau::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 28%;
+  background: rgba(255, 255, 255, 0.28);
+  filter: blur(8px);
+  animation: kilau 4.5s ease-in-out 1.2s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ilustrasi pemandangan */
+.awan { animation: awan linear infinite; }
+.ombak { animation: ombak linear infinite; }
+.pesawat { animation: pesawat 9s ease-in-out infinite; }
+.sinar { transform-box: fill-box; transform-origin: center; animation: sinar 4s ease-in-out infinite; }
+
+/* Sembunyikan scrollbar baris tab yang bisa digeser */
+.tanpa-scrollbar { scrollbar-width: none; }
+.tanpa-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

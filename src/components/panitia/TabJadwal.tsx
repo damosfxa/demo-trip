@@ -89,13 +89,13 @@ export function TabJadwal({ data, bisaUbah, muatUlang }: PropsTab) {
             {h.isi.map((a) => (
               <li key={a.id} className="flex items-start justify-between gap-3 py-2.5">
                 <div className="min-w-0">
-                  <p className="text-sm font-bold tabular-nums text-sky-800">{jamAcara(a.mulai, a, trip.zona)}{a.selesai ? ` sampai ${jamAcara(a.selesai, a, trip.zona)}` : ""}</p>
+                  <p className="text-sm font-bold tabular-nums text-laut-800">{jamAcara(a.mulai, a, trip.zona)}{a.selesai ? ` sampai ${jamAcara(a.selesai, a, trip.zona)}` : ""}</p>
                   <p className="font-semibold">{a.judul}</p>
                   {(a.lokasi || a.ket) && <p className="text-sm text-slate-500">{[a.lokasi, a.ket].filter(Boolean).join(" · ")}</p>}
                 </div>
                 {bisaUbah && (
                   <div className="flex shrink-0 gap-3 text-sm font-semibold">
-                    <button onClick={() => ubah(a)} className="text-sky-700">Ubah</button>
+                    <button onClick={() => ubah(a)} className="text-laut-700">Ubah</button>
                     <button onClick={() => hapus(a)} className="text-red-600">Hapus</button>
                   </div>
                 )}

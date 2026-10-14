@@ -14,3 +14,14 @@ const ambil = () => Math.floor(Date.now() / LANGKAH) * LANGKAH;
 export function useSekarang() {
   return useSyncExternalStore(sub, ambil, () => 0);
 }
+
+// Detik demi detik, khusus untuk hitung mundur di beranda.
+const subDetik = (f: () => void) => {
+  const t = setInterval(f, 1000);
+  return () => clearInterval(t);
+};
+const ambilDetik = () => Math.floor(Date.now() / 1000) * 1000;
+
+export function useDetik() {
+  return useSyncExternalStore(subDetik, ambilDetik, () => 0);
+}

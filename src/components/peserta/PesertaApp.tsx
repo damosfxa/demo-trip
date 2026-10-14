@@ -5,7 +5,7 @@ import { keluar, kunciToken, muatSaya, muatTrip, type PaketTrip } from "@/lib/da
 import { useSekarang } from "@/lib/jam";
 import { useSimpan } from "@/lib/simpan";
 import type { DataSaya } from "@/lib/types";
-import { IkonInfo, IkonKalender, IkonKartu, IkonRumah, IkonSinyal } from "../Ikon";
+import { IkonInfo, IkonKalender, IkonKartu, IkonLokasi, IkonRumah, IkonSegar, IkonSinyal } from "../Ikon";
 import { Beranda } from "./Beranda";
 import { InfoTrip } from "./InfoTrip";
 import { Jadwal } from "./Jadwal";
@@ -22,10 +22,16 @@ const TABS: { id: Tab; label: string; Ikon: typeof IkonRumah }[] = [
 
 function Memuat() {
   return (
-    <div className="space-y-4 px-4 pt-6">
-      <div className="h-48 animate-pulse rounded-3xl bg-slate-200" />
-      <div className="h-24 animate-pulse rounded-3xl bg-slate-200" />
-      <div className="h-40 animate-pulse rounded-3xl bg-slate-200" />
+    <div>
+      <div className="kerangka h-[22rem]" />
+      <div className="-mt-9 space-y-4 px-4">
+        <div className="kerangka h-28 rounded-3xl" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="kerangka h-32 rounded-3xl" />
+          <div className="kerangka h-32 rounded-3xl" />
+        </div>
+        <div className="kerangka h-40 rounded-3xl" />
+      </div>
     </div>
   );
 }
@@ -39,6 +45,7 @@ export function PesertaApp({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("beranda");
   const [muat, setMuat] = useState(0);
+  const [memperbarui, setMemperbarui] = useState(false);
 
   // Data trip (publik).
   useEffect(() => {
@@ -48,6 +55,7 @@ export function PesertaApp({ slug }: { slug: string }) {
       setPaket(r.data);
       setOffline(r.offline);
       setError(r.error);
+      setMemperbarui(false);
     });
     return () => {
       aktif = false;
@@ -83,44 +91,64 @@ export function PesertaApp({ slug }: { slug: string }) {
 
   if (error && !paket) {
     return (
-      <div className="px-4 pt-16 text-center">
-        <p className="text-4xl">🧭</p>
-        <p className="mt-3 text-lg font-bold">{error}</p>
-        <p className="mt-1 text-sm text-slate-500">Periksa kembali link dari panitia.</p>
+      <div className="anim-naik px-6 pt-24 text-center">
+        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-laut-100 text-laut-700"><IkonLokasi className="h-8 w-8" /></span>
+        <p className="mt-4 text-xl font-extrabold text-laut-950">{error}</p>
+        <p className="mt-1 text-slate-500">Periksa kembali link dari panitia.</p>
       </div>
     );
   }
   if (!paket || token === undefined) return <Memuat />;
   if (!token) return <Registrasi trip={paket.trip} />;
 
+  const pindah = (t: Tab) => {
+    setTab(t);
+    window.scrollTo({ top: 0 });
+  };
+  const posisi = TABS.findIndex((t) => t.id === tab);
+
   return (
-    <div className="pb-28">
+    <div className="pb-32">
       {offline && (
-        <p className="flex items-center justify-center gap-2 bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-900">
+        <p className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-mentari-400 px-4 py-2 text-center text-xs font-bold text-laut-950">
           <IkonSinyal /> Sedang offline, menampilkan data terakhir
         </p>
       )}
-      <div className="px-4 pt-5">
-        {tab === "beranda" && <Beranda paket={paket} saya={saya} sekarang={sekarang} keKartu={() => setTab("kartu")} />}
-        {tab === "jadwal" && <Jadwal trip={paket.trip} agenda={paket.agenda} sekarang={sekarang} />}
-        {tab === "kartu" && (saya ? <Kartu trip={paket.trip} saya={saya} /> : <Memuat />)}
-        {tab === "info" && <InfoTrip trip={paket.trip} nama={saya?.nama ?? ""} />}
 
-        <div className="mt-6 flex flex-col items-center gap-2 text-sm">
-          <button onClick={segarkan} className="font-semibold text-sky-700">Perbarui data</button>
-          {saya && (
-            <button onClick={() => keluar(slug)} className="text-slate-400">
-              Bukan {saya.nama.split(" ")[0]}? Ganti peserta
-            </button>
-          )}
-        </div>
+      <div key={tab} className="anim-geser">
+        {tab === "beranda" && <Beranda paket={paket} saya={saya} sekarang={sekarang} keKartu={() => pindah("kartu")} keJadwal={() => pindah("jadwal")} />}
+        {tab === "jadwal" && <Jadwal trip={paket.trip} agenda={paket.agenda} sekarang={sekarang} />}
+        {tab === "kartu" && (saya ? <Kartu trip={paket.trip} saya={saya} /> : <div className="kerangka m-4 h-96 rounded-[2rem]" />)}
+        {tab === "info" && <InfoTrip trip={paket.trip} nama={saya?.nama ?? ""} />}
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-        <div className="mx-auto flex max-w-md">
+      <div className="mt-8 flex flex-col items-center gap-2 px-4 text-sm">
+        <button
+          onClick={() => {
+            setMemperbarui(true);
+            segarkan();
+          }}
+          className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 font-semibold text-laut-700 shadow-sm ring-1 ring-black/5"
+        >
+          <IkonSegar className={memperbarui ? "h-4 w-4 animate-spin" : "h-4 w-4"} /> Perbarui data
+        </button>
+        {saya && (
+          <button onClick={() => keluar(slug)} className="text-slate-400">
+            Bukan {saya.nama.split(" ")[0]}? Ganti peserta
+          </button>
+        )}
+      </div>
+
+      {/* Menu bawah dengan penanda yang bergeser */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+        <div className="relative mx-auto flex max-w-md rounded-3xl bg-laut-950/90 p-1.5 shadow-2xl shadow-laut-950/30 backdrop-blur-xl">
+          <span
+            className="absolute bottom-1.5 top-1.5 rounded-2xl bg-white/15 transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+            style={{ width: `calc((100% - 0.75rem) / ${TABS.length})`, transform: `translateX(${posisi * 100}%)` }}
+          />
           {TABS.map(({ id, label, Ikon }) => (
-            <button key={id} onClick={() => { setTab(id); window.scrollTo({ top: 0 }); }} className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-xs font-semibold ${tab === id ? "text-sky-700" : "text-slate-400"}`}>
-              <Ikon className="h-6 w-6" />
+            <button key={id} onClick={() => pindah(id)} className={`relative z-10 flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-semibold transition-colors ${tab === id ? "text-white" : "text-white/55"}`}>
+              <Ikon className={`h-[22px] w-[22px] transition-transform duration-300 ${tab === id ? "-translate-y-0.5 scale-110" : ""}`} />
               {label}
             </button>
           ))}

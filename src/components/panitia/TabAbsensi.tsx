@@ -55,7 +55,7 @@ export function TabAbsensi({ data, bisaUbah, muatUlang }: PropsTab) {
         </div>
         {bisaUbah ? (
           <button onClick={() => { setHasil(null); setScan((s) => !s); }} className={`${tombol} w-full py-3`}>
-            {scan ? "Tutup kamera" : "📷 Scan kartu peserta"}
+            {scan ? "Tutup kamera" : "Scan kartu peserta"}
           </button>
         ) : (
           <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Akun demo hanya bisa melihat. Scan absensi untuk akun panitia.</p>
@@ -91,7 +91,7 @@ export function TabAbsensi({ data, bisaUbah, muatUlang }: PropsTab) {
               </li>
             );
           })}
-          {daftar.length === 0 && <li className="py-6 text-center text-sm text-slate-500">{lihat === "belum" ? "Semua sudah hadir 🎉" : "Belum ada yang hadir."}</li>}
+          {daftar.length === 0 && <li className="py-6 text-center text-sm text-slate-500">{lihat === "belum" ? "Semua sudah hadir" : "Belum ada yang hadir."}</li>}
         </ul>
       </Kartu>
     </div>

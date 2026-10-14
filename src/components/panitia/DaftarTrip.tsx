@@ -46,7 +46,7 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
         <Kartu><p className="text-center text-slate-500">Belum ada trip.</p></Kartu>
       ) : (
         trips.map((t) => (
-          <Link key={t.id} href={`/panitia?trip=${t.id}`} className="block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100 hover:ring-sky-300">
+          <Link key={t.id} href={`/panitia?trip=${t.id}`} className="block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 hover:ring-laut-300">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-bold">{t.nama}</p>
@@ -54,7 +54,7 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
               </div>
               {!t.aktif && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">Ditutup</span>}
             </div>
-            <p className="mt-3 text-sm"><span className="text-2xl font-extrabold text-sky-700">{t.jumlah}</span> peserta terdaftar</p>
+            <p className="mt-3 text-sm"><span className="text-2xl font-extrabold text-laut-700">{t.jumlah}</span> peserta terdaftar</p>
           </Link>
         ))
       )}

@@ -19,6 +19,7 @@ function keForm(t: Trip) {
     selesai: t.selesai,
     zona: t.zona,
     titik_kumpul: t.titik_kumpul ?? "",
+    cover_url: t.cover_url ?? "",
     maps_url: t.maps_url ?? "",
     wa_panitia: t.wa_panitia ?? "",
     departemen: t.departemen.join("\n"),
@@ -53,6 +54,7 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
         selesai: f.selesai,
         zona: f.zona,
         titik_kumpul: f.titik_kumpul.trim() || null,
+        cover_url: f.cover_url.trim() || null,
         maps_url: f.maps_url.trim() || null,
         wa_panitia: f.wa_panitia.replace(/\D/g, "") || null,
         departemen,
@@ -93,6 +95,7 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
             {(Object.keys(LABEL_ZONA) as Zona[]).map((z) => <option key={z} value={z}>{LABEL_ZONA[z]}</option>)}
           </select>
         </Label>
+        <Label teks="Foto sampul (opsional)" catatan="Link gambar yang diawali https://. Kosongkan untuk memakai ilustrasi pemandangan bergerak."><input className={field} value={f.cover_url} onChange={set("cover_url")} placeholder="https://..." disabled={d} /></Label>
         <label className="flex items-center gap-2 text-sm font-semibold">
           <input type="checkbox" checked={f.aktif} onChange={(e) => setF({ ...f, aktif: e.target.checked })} disabled={d} />
           Trip aktif (bisa dibuka dan registrasi)

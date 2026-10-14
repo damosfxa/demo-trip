@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { linkPeserta } from "@/lib/panitia";
 import type { PropsTab } from "./PanelTrip";
-import { Batang, Kartu, tombol, tombolGaris } from "./ui";
+import { Angka, Batang, Kartu, tombol, tombolGaris } from "./ui";
 
 export function Ringkasan({ data }: PropsTab) {
   const { trip, peserta, absen } = data;
@@ -30,11 +30,11 @@ export function Ringkasan({ data }: PropsTab) {
       <div className="grid grid-cols-2 gap-3">
         <Kartu className="!p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Terdaftar</p>
-          <p className="text-3xl font-extrabold text-sky-700">{peserta.length}</p>
+          <p className="text-4xl font-extrabold text-laut-900"><Angka nilai={peserta.length} /></p>
         </Kartu>
         <Kartu className="!p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Belum ada bus / kamar</p>
-          <p className="text-3xl font-extrabold text-amber-600">{tanpaBus} <span className="text-lg text-slate-300">/</span> {tanpaKamar}</p>
+          <p className="text-4xl font-extrabold text-karang-600"><Angka nilai={tanpaBus} /> <span className="text-xl text-slate-300">/</span> <Angka nilai={tanpaKamar} /></p>
         </Kartu>
       </div>
 
@@ -52,7 +52,7 @@ export function Ringkasan({ data }: PropsTab) {
 
       <Kartu className="space-y-3">
         <p className="font-bold">Bagikan ke peserta</p>
-        <p className="break-all rounded-xl bg-slate-50 px-3 py-2 font-mono text-sm">{link}</p>
+        <p className="break-all rounded-xl bg-pasir-50 px-3 py-2 font-mono text-sm">{link}</p>
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={async () => {
@@ -69,12 +69,12 @@ export function Ringkasan({ data }: PropsTab) {
           </a>
         </div>
         {qr && (
-          <div className="flex items-center gap-4 rounded-2xl bg-slate-50 p-3">
+          <div className="flex items-center gap-4 rounded-2xl bg-pasir-50 p-3">
             <img src={qr} alt="QR link peserta" className="h-24 w-24 rounded-lg bg-white" />
             <div className="text-sm">
               <p className="font-semibold">QR untuk poster atau slide</p>
               <p className="text-slate-500">Peserta cukup memindai untuk registrasi.</p>
-              <a href={qr} download={`qr-${trip.slug}.png`} className="mt-1 inline-block font-semibold text-sky-700">Unduh QR</a>
+              <a href={qr} download={`qr-${trip.slug}.png`} className="mt-1 inline-block font-semibold text-laut-700">Unduh QR</a>
             </div>
           </div>
         )}

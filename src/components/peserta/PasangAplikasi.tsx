@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { IkonPasang } from "../Ikon";
 
 type PromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
@@ -22,20 +23,23 @@ export function PasangAplikasi() {
   if (terpasang) return null;
 
   return (
-    <div className="rounded-3xl bg-sky-50 p-5 ring-1 ring-sky-100">
-      <p className="font-bold text-sky-900">📲 Simpan di layar HP</p>
-      <p className="mt-1 text-sm leading-relaxed text-sky-900/80">
-        Buka seperti aplikasi tanpa mencari link lagi, dan tetap bisa dilihat walau sinyal hilang.
-      </p>
-      {evt ? (
-        <button onClick={() => evt.prompt().then(() => setEvt(null))} className="mt-3 w-full rounded-xl bg-sky-700 py-3 text-sm font-bold text-white">
-          Pasang sekarang
-        </button>
-      ) : (
-        <p className="mt-2 text-sm text-sky-900/80">
-          {ios ? "Di Safari: ketuk tombol Bagikan, lalu pilih \"Tambah ke Layar Utama\"." : "Di Chrome: ketuk menu titik tiga, lalu pilih \"Tambahkan ke layar utama\"."}
-        </p>
-      )}
+    <div className="flex gap-4 rounded-3xl bg-laut-900 p-5 text-white">
+      <span className="anim-melayang flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-mentari-400">
+        <IkonPasang className="h-6 w-6" />
+      </span>
+      <div className="flex-1">
+        <p className="font-bold">Simpan di layar HP</p>
+        <p className="mt-0.5 text-sm leading-relaxed text-white/75">Terbuka seperti aplikasi dan tetap bisa dilihat walau sinyal hilang.</p>
+        {evt ? (
+          <button onClick={() => evt.prompt().then(() => setEvt(null))} className="mt-3 rounded-xl bg-mentari-400 px-4 py-2 text-sm font-bold text-laut-950 transition active:scale-95">
+            Pasang sekarang
+          </button>
+        ) : (
+          <p className="mt-2 text-sm text-white/85">
+            {ios ? "Di Safari: ketuk Bagikan, lalu \"Tambah ke Layar Utama\"." : "Di Chrome: ketuk menu titik tiga, lalu \"Tambahkan ke layar utama\"."}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

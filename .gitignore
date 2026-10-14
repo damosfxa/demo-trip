@@ -1,0 +1,14 @@
+# dependencies
+node_modules
+
+# next.js
+.next
+next-env.d.ts
+*.tsbuildinfo
+
+# env (jangan di-commit)
+.env*.local
+.env
+
+# vercel
+.vercel

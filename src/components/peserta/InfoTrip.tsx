@@ -197,7 +197,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
       {infoTampil.length > 0 && (
         <div style={{ "--i": 2 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-3 flex items-center gap-2 font-bold text-laut-950">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-laut-100 text-laut-700"><IkonInfo className="h-4 w-4" /></span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-laut-700"><IkonInfo className="h-4 w-4" /></span>
             {t("infoPenting")}
           </p>
           <div className="space-y-2.5">
@@ -220,7 +220,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
           <div className="mb-2 flex items-center justify-between">
             <div>
               <p className="flex items-center gap-2 font-bold text-laut-950">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-pasir-200 text-karang-600"><IkonKoper className="h-4 w-4" /></span>
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-karang-600"><IkonKoper className="h-4 w-4" /></span>
                 {t("barangBawaan")}
               </p>
               <p className="mt-1 text-sm text-slate-500">{lengkap ? t("semuaSiap") : t("barangLagi", { n: trip.checklist.length - cek.length })}</p>
@@ -252,7 +252,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
       {faqTampil.length > 0 && (
         <div style={{ "--i": 4 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-2 flex items-center gap-2 font-bold text-laut-950">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-laut-100 text-laut-700"><IkonTanya className="h-4 w-4" /></span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-laut-700"><IkonTanya className="h-4 w-4" /></span>
             {t("tanyaJawab")}
           </p>
           {faqTampil.map((f) => (

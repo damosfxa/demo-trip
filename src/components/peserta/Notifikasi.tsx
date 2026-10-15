@@ -64,7 +64,7 @@ export function NyalakanNotifikasi({ token }: { token: string }) {
 
   return (
     <div className="flex gap-4 rounded-3xl bg-laut-900 p-5 text-white">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-mentari-400">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-mentari-400">
         <IkonToa className="h-5 w-5" />
       </span>
       <div className="flex-1">

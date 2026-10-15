@@ -130,7 +130,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
         {/* Pengumuman */}
         <div style={{ "--i": 4 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-3 flex items-center gap-2 font-bold text-laut-950">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-karang-500/15 text-karang-600"><IkonToa className="h-4 w-4" /></span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-karang-600"><IkonToa className="h-4 w-4" /></span>
             {t("pengumuman")}
           </p>
           {pengumuman.length === 0 ? (

@@ -133,7 +133,7 @@ export function PesertaApp({ slug }: { slug: string }) {
   if (error && !paket) {
     return (
       <div className="px-6 pt-24 text-center">
-        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-laut-100 text-laut-700"><IkonLokasi className="h-8 w-8" /></span>
+        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl text-laut-700"><IkonLokasi className="h-8 w-8" /></span>
         <p className="mt-4 text-xl font-extrabold text-laut-950">{error}</p>
         <p className="mt-1 text-slate-500">{t("salahLink")}</p>
       </div>

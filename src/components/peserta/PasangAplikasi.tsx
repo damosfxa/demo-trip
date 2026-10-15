@@ -26,7 +26,7 @@ export function PasangAplikasi() {
 
   return (
     <div className="flex gap-4 rounded-3xl bg-laut-900 p-5 text-white">
-      <span className="anim-melayang flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-mentari-400">
+      <span className="anim-melayang flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-mentari-400">
         <IkonPasang className="h-6 w-6" />
       </span>
       <div className="flex-1">

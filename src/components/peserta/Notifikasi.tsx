@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { aktifkanNotifikasi, statusNotifikasi, type StatusNotif } from "@/lib/notifikasi";
+import { kamus, useBahasa } from "@/lib/bahasa";
 import { IkonToa } from "../Ikon";
 
 export type Kabar = { id: string; jenis: "publik" | "pribadi"; isi: string };
 
 /** Pop-up kabar baru dari panitia, muncul dari atas layar saat aplikasi sedang dibuka. */
 export function PopupKabar({ kabar, onTutup, onBuka }: { kabar: Kabar | null; onTutup: () => void; onBuka: () => void }) {
+  const t = kamus(useBahasa());
   useEffect(() => {
     if (!kabar) return;
     const t = setTimeout(onTutup, 9000);
@@ -23,10 +25,10 @@ export function PopupKabar({ kabar, onTutup, onBuka }: { kabar: Kabar | null; on
           <IkonToa className="h-5 w-5" />
         </span>
         <button onClick={onBuka} className="min-w-0 flex-1 text-left">
-          <p className="text-xs font-bold uppercase tracking-wider text-laut-700">{pribadi ? "Pesan untuk Anda" : "Pengumuman baru"}</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-laut-700">{pribadi ? t("pesanUntukAnda") : t("pengumumanBaru")}</p>
           <p className="mt-0.5 line-clamp-3 text-[15px] leading-snug text-slate-800">{kabar.isi}</p>
         </button>
-        <button onClick={onTutup} aria-label="Tutup" className="-mr-1 -mt-1 h-8 w-8 shrink-0 rounded-full text-xl leading-none text-slate-400">×</button>
+        <button onClick={onTutup} aria-label={t("tutup")} className="-mr-1 -mt-1 h-8 w-8 shrink-0 rounded-full text-xl leading-none text-slate-400">×</button>
       </div>
     </div>
   );
@@ -34,6 +36,7 @@ export function PopupKabar({ kabar, onTutup, onBuka }: { kabar: Kabar | null; on
 
 /** Kartu untuk menyalakan notifikasi HP. Hilang sendiri bila sudah aktif. */
 export function NyalakanNotifikasi({ token }: { token: string }) {
+  const t = kamus(useBahasa());
   const [status, setStatus] = useState<StatusNotif | null>(null);
   const [proses, setProses] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,18 +68,18 @@ export function NyalakanNotifikasi({ token }: { token: string }) {
         <IkonToa className="h-5 w-5" />
       </span>
       <div className="flex-1">
-        <p className="font-bold">Jangan lewatkan kabar panitia</p>
+        <p className="font-bold">{t("notifJudul")}</p>
         {status === "perlu-dipasang" ? (
           <p className="mt-1 text-sm leading-relaxed text-white/80">
-            Di iPhone, simpan dulu halaman ini ke layar utama (Bagikan, lalu &quot;Tambah ke Layar Utama&quot;), buka dari ikonnya, lalu nyalakan notifikasi di sini.
+            {t("notifIos")}
           </p>
         ) : status === "ditolak" ? (
-          <p className="mt-1 text-sm leading-relaxed text-white/80">Notifikasi diblokir. Izinkan lewat pengaturan situs di browser, lalu muat ulang halaman ini.</p>
+          <p className="mt-1 text-sm leading-relaxed text-white/80">{t("notifBlok")}</p>
         ) : (
           <>
-            <p className="mt-1 text-sm leading-relaxed text-white/80">Pengumuman dan pesan dari panitia muncul di HP, walau aplikasi sedang ditutup.</p>
+            <p className="mt-1 text-sm leading-relaxed text-white/80">{t("notifIsi")}</p>
             <button onClick={nyalakan} disabled={proses} className="mt-3 rounded-xl bg-mentari-400 px-4 py-2 text-sm font-bold text-laut-950 disabled:opacity-60">
-              {proses ? "Menyalakan..." : "Nyalakan notifikasi"}
+              {proses ? t("menyalakan") : t("nyalakanNotif")}
             </button>
           </>
         )}

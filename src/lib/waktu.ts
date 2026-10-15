@@ -1,4 +1,5 @@
 import type { Zona } from "./types";
+import { lokal } from "./bahasa";
 
 // Jam acara selalu ditampilkan menurut zona waktu lokasi trip, bukan zona HP peserta.
 
@@ -6,10 +7,10 @@ export const LABEL_ZONA: Record<Zona, string> = { "Asia/Jakarta": "WIB", "Asia/M
 const OFFSET: Record<Zona, string> = { "Asia/Jakarta": "+07:00", "Asia/Makassar": "+08:00", "Asia/Jayapura": "+09:00" };
 
 export const jam = (iso: string, zona: Zona) =>
-  new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: zona }).format(new Date(iso)).replace(":", ".");
+  new Intl.DateTimeFormat(lokal(), { hour: "2-digit", minute: "2-digit", timeZone: zona }).format(new Date(iso)).replace(":", ".");
 
 export const tanggalPanjang = (iso: string, zona: Zona) =>
-  new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", timeZone: zona }).format(new Date(iso));
+  new Intl.DateTimeFormat(lokal(), { weekday: "long", day: "numeric", month: "long", timeZone: zona }).format(new Date(iso));
 
 /** Kunci hari (YYYY-MM-DD) menurut zona trip, untuk mengelompokkan jadwal. */
 export const kunciHari = (iso: string, zona: Zona) =>
@@ -24,19 +25,19 @@ export function pecahIso(iso: string, zona: Zona) {
 }
 
 export const tanggalSingkat = (tgl: string) =>
-  new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(tgl + "T00:00:00Z"));
+  new Intl.DateTimeFormat(lokal(), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(tgl + "T00:00:00Z"));
 
 export function rentangTanggal(mulai: string, selesai: string) {
   const a = new Date(mulai + "T00:00:00Z");
   const b = new Date(selesai + "T00:00:00Z");
-  const f = (d: Date, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("id-ID", { ...o, timeZone: "UTC" }).format(d);
+  const f = (d: Date, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(lokal(), { ...o, timeZone: "UTC" }).format(d);
   if (mulai === selesai) return f(a, { day: "numeric", month: "long", year: "numeric" });
   if (a.getUTCMonth() === b.getUTCMonth()) return `${a.getUTCDate()} sampai ${f(b, { day: "numeric", month: "long", year: "numeric" })}`;
   return `${f(a, { day: "numeric", month: "long" })} sampai ${f(b, { day: "numeric", month: "long", year: "numeric" })}`;
 }
 
 export const relatif = (iso: string) =>
-  new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)).replace(":", ".");
+  new Intl.DateTimeFormat(lokal(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)).replace(":", ".");
 
 /** Nomor Indonesia ke format wa.me (62...). */
 export function waLink(hp: string | null, teks = "") {

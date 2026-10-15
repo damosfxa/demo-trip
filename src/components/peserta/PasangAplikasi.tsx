@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { kamus, useBahasa } from "@/lib/bahasa";
 import { IkonPasang } from "../Ikon";
 
 type PromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
@@ -20,6 +21,7 @@ export function PasangAplikasi() {
     return () => window.removeEventListener("beforeinstallprompt", h);
   }, []);
 
+  const t = kamus(useBahasa());
   if (terpasang) return null;
 
   return (
@@ -28,15 +30,15 @@ export function PasangAplikasi() {
         <IkonPasang className="h-6 w-6" />
       </span>
       <div className="flex-1">
-        <p className="font-bold">Simpan di layar HP</p>
-        <p className="mt-0.5 text-sm leading-relaxed text-white/75">Terbuka seperti aplikasi dan tetap bisa dilihat walau sinyal hilang.</p>
+        <p className="font-bold">{t("simpanLayar")}</p>
+        <p className="mt-0.5 text-sm leading-relaxed text-white/75">{t("simpanTerbuka")}</p>
         {evt ? (
           <button onClick={() => evt.prompt().then(() => setEvt(null))} className="mt-3 rounded-xl bg-mentari-400 px-4 py-2 text-sm font-bold text-laut-950 transition active:scale-95">
-            Pasang sekarang
+            {t("simpanLayar")}
           </button>
         ) : (
           <p className="mt-2 text-sm text-white/85">
-            {ios ? "Di Safari: ketuk Bagikan, lalu \"Tambah ke Layar Utama\"." : "Di Chrome: ketuk menu titik tiga, lalu \"Tambahkan ke layar utama\"."}
+            {ios ? t("diSafari") : t("diChrome")}
           </p>
         )}
       </div>

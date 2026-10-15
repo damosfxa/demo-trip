@@ -6,6 +6,7 @@ import { pesanError, supabase } from "@/lib/supabase";
 import { tulis, useSimpan } from "@/lib/simpan";
 import type { Trip } from "@/lib/types";
 import { waLink } from "@/lib/waktu";
+import { gantiBahasa, kamus, useBahasa } from "@/lib/bahasa";
 import { IkonCentang, IkonInfo, IkonKoper, IkonLokasi, IkonPanah, IkonSalin, IkonTanya, IkonTelp, IkonWa } from "../Ikon";
 
 function Cincin({ nilai, total }: { nilai: number; total: number }) {
@@ -22,6 +23,7 @@ function Cincin({ nilai, total }: { nilai: number; total: number }) {
 
 /** Tombol salin kecil. Menampilkan "Tersalin" sebentar setelah berhasil. */
 function TombolSalin({ teks }: { teks: string }) {
+  const t = kamus(useBahasa());
   const [ok, setOk] = useState(false);
   const salin = async () => {
     try {
@@ -34,13 +36,14 @@ function TombolSalin({ teks }: { teks: string }) {
   };
   return (
     <button onClick={salin} className="flex shrink-0 items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-bold text-laut-800 shadow-sm ring-1 ring-black/5 transition active:scale-95">
-      <IkonSalin className="h-3.5 w-3.5" /> {ok ? "Tersalin" : "Salin"}
+      <IkonSalin className="h-3.5 w-3.5" /> {ok ? t("tersalin") : t("salin")}
     </button>
   );
 }
 
 /** Formulir peserta untuk memperbarui nomor HP dan isian (misalnya ukuran kaos) sendiri. */
 function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: string; isianAwal: Record<string, string>; onSimpan: () => void }) {
+  const t = kamus(useBahasa());
   const [buka, setBuka] = useState(false);
   const [hp, setHp] = useState("");
   const [isian, setIsian] = useState<Record<string, string>>(isianAwal);
@@ -49,12 +52,12 @@ function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: str
 
   const simpan = async () => {
     setPesan(null);
-    if (!hp.trim()) return setPesan("Isi nomor HP yang aktif.");
+    if (!hp.trim()) return setPesan(t("isiHp"));
     setProses(true);
     const { error } = await supabase.rpc("ubah_data_saya", { p_token: token, p_hp: hp, p_isian: isian });
     setProses(false);
     if (error) return setPesan(pesanError(error));
-    setPesan("Data Anda sudah diperbarui.");
+    setPesan(t("dataDiperbarui"));
     setBuka(false);
     onSimpan();
   };
@@ -62,22 +65,22 @@ function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: str
   return (
     <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
       <div className="flex items-center justify-between gap-3">
-        <p className="font-bold text-laut-950">Data saya</p>
-        <button onClick={() => setBuka((b) => !b)} className="text-sm font-bold text-laut-700">{buka ? "Tutup" : "Ubah"}</button>
+        <p className="font-bold text-laut-950">{t("dataSaya")}</p>
+        <button onClick={() => setBuka((b) => !b)} className="text-sm font-bold text-laut-700">{buka ? t("tutup") : t("ubah")}</button>
       </div>
       {pesan && <p className="mt-2 rounded-xl bg-laut-50 px-3 py-2 text-sm text-laut-900">{pesan}</p>}
       {buka && (
         <div className="mt-3 space-y-2.5">
           <label className="block space-y-1">
-            <span className="text-xs font-semibold text-slate-500">Nomor HP (WhatsApp) yang aktif</span>
+            <span className="text-xs font-semibold text-slate-500">{t("nomorHpAktif")}</span>
             <input value={hp} onChange={(e) => setHp(e.target.value)} inputMode="tel" className="w-full rounded-2xl border border-slate-200 px-3.5 py-3 text-[15px] outline-none focus:border-laut-600" placeholder="0812 3456 7890" />
           </label>
           {trip.isian.map((f) => (
             <label key={f.id} className="block space-y-1">
-              <span className="text-xs font-semibold text-slate-500">{f.label}{f.wajib ? "" : " (opsional)"}</span>
+              <span className="text-xs font-semibold text-slate-500">{f.label}{f.wajib ? "" : ` ${t("opsional")}`}</span>
               {f.pilihan.length > 0 ? (
                 <select value={isian[f.id] ?? ""} onChange={(e) => setIsian({ ...isian, [f.id]: e.target.value })} className="w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-3 text-[15px] outline-none focus:border-laut-600">
-                  <option value="">Pilih</option>
+                  <option value="">{t("pilih")}</option>
                   {f.pilihan.map((o) => <option key={o}>{o}</option>)}
                 </select>
               ) : (
@@ -86,7 +89,7 @@ function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: str
             </label>
           ))}
           <button onClick={simpan} disabled={proses} className="w-full rounded-2xl bg-laut-900 py-3 text-sm font-bold text-white transition active:scale-[0.98] disabled:opacity-60">
-            {proses ? "Menyimpan..." : "Simpan perubahan"}
+            {proses ? t("menyimpan") : t("simpanPerubahan")}
           </button>
         </div>
       )}
@@ -95,6 +98,8 @@ function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: str
 }
 
 export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGelap }: { trip: Trip; nama: string; token?: string; isianSaya?: Record<string, string>; onSegarkan?: () => void; gelap?: boolean; onGelap?: () => void }) {
+  const bahasa = useBahasa();
+  const t = kamus(bahasa);
   const cek = useSimpan<number[]>(kunciCek(trip.slug)) ?? [];
   const [baruDicentang, setBaruDicentang] = useState<number | null>(null);
   const [cari, setCari] = useState("");
@@ -119,7 +124,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
     <div className="space-y-4 px-4 pt-6">
       <div style={{ "--i": 0 } as React.CSSProperties}>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-laut-600">{trip.tujuan}</p>
-        <h1 className="text-3xl font-extrabold tracking-tight text-laut-950">Info perjalanan</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-laut-950">{t("infoJudul")}</h1>
       </div>
 
       {(trip.info.length > 0 || trip.checklist.length > 0 || trip.faq.length > 0) && (
@@ -127,14 +132,14 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
           <span className="text-slate-400" aria-hidden>
             <IkonTanya className="h-4 w-4" />
           </span>
-          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari info, barang, atau pertanyaan" className="min-w-0 flex-1 bg-transparent text-[15px] text-laut-950 outline-none placeholder:text-slate-400" />
+          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder={t("cariInfo")} className="min-w-0 flex-1 bg-transparent text-[15px] text-laut-950 outline-none placeholder:text-slate-400" />
           {cari && (
-            <button onClick={() => setCari("")} className="text-xs font-bold text-laut-700">Hapus</button>
+            <button onClick={() => setCari("")} className="text-xs font-bold text-laut-700">{t("hapusCari")}</button>
           )}
         </label>
       )}
 
-      {q && !adaHasil && <p className="rounded-3xl bg-white p-6 text-center text-slate-500 shadow-sm ring-1 ring-black/5">Tidak ada yang cocok dengan &ldquo;{cari}&rdquo;.</p>}
+      {q && !adaHasil && <p className="rounded-3xl bg-white p-6 text-center text-slate-500 shadow-sm ring-1 ring-black/5">{t("tidakCocok", { q: cari })}</p>}
 
       {/* Titik kumpul dengan peta */}
       {trip.titik_kumpul && !q && (
@@ -146,7 +151,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
             </div>
           )}
           <div className="p-5">
-            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-laut-600"><IkonLokasi className="h-4 w-4" /> Titik kumpul</p>
+            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-laut-600"><IkonLokasi className="h-4 w-4" /> {t("titikKumpul")}</p>
             <div className="mt-1 flex items-start justify-between gap-3">
               <p className="text-lg font-bold leading-snug text-laut-950">{trip.titik_kumpul}</p>
               <TombolSalin teks={trip.titik_kumpul} />
@@ -154,17 +159,17 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
             <div className="mt-4 grid grid-cols-2 gap-2">
               {trip.maps_url && (
                 <a href={trip.maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-2xl bg-laut-50 py-3 text-sm font-bold text-laut-800 transition active:scale-95">
-                  <IkonLokasi className="h-4 w-4" /> Petunjuk arah
+                  <IkonLokasi className="h-4 w-4" /> {t("petunjukArah")}
                 </a>
               )}
               {wa && (
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white transition active:scale-95">
-                  <IkonWa className="h-4 w-4" /> Tanya panitia
+                  <IkonWa className="h-4 w-4" /> {t("tanyaPanitia")}
                 </a>
               )}
               {telp && (
                 <a href={telp} className="col-span-2 flex items-center justify-center gap-2 rounded-2xl bg-laut-900 py-3 text-sm font-bold text-white transition active:scale-95">
-                  <IkonTelp className="h-4 w-4" /> Telepon panitia
+                  <IkonTelp className="h-4 w-4" /> {t("teleponPanitia")}
                 </a>
               )}
             </div>
@@ -174,10 +179,15 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
 
       {token && onSegarkan && !q && <DataSaya trip={trip} token={token} isianAwal={isianSaya ?? {}} onSimpan={onSegarkan} />}
 
+      <button onClick={() => gantiBahasa(bahasa === "en" ? "id" : "en")} className="flex w-full items-center justify-between rounded-3xl bg-white p-4 text-left text-sm font-semibold text-laut-950 shadow-sm ring-1 ring-black/5">
+        <span>{t("bahasa")}</span>
+        <span className="text-laut-700">{bahasa === "en" ? "English" : "Indonesia"}</span>
+      </button>
+
       {onGelap && (
         <button onClick={onGelap} className="flex w-full items-center justify-between rounded-3xl bg-white p-4 text-left text-sm font-semibold text-laut-950 shadow-sm ring-1 ring-black/5">
-          <span>Mode malam</span>
-          <span className="text-laut-700">{gelap ? "Aktif" : "Nonaktif"}</span>
+          <span>{t("modeMalam")}</span>
+          <span className="text-laut-700">{gelap ? t("aktif") : t("nonaktif")}</span>
         </button>
       )}
 
@@ -186,7 +196,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
         <div style={{ "--i": 2 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-3 flex items-center gap-2 font-bold text-laut-950">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-laut-100 text-laut-700"><IkonInfo className="h-4 w-4" /></span>
-            Info penting
+            {t("infoPenting")}
           </p>
           <div className="space-y-2.5">
             {infoTampil.map((i) => (
@@ -209,9 +219,9 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
             <div>
               <p className="flex items-center gap-2 font-bold text-laut-950">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-pasir-200 text-karang-600"><IkonKoper className="h-4 w-4" /></span>
-                Barang bawaan
+                {t("barangBawaan")}
               </p>
-              <p className="mt-1 text-sm text-slate-500">{lengkap ? "Semua siap. Selamat jalan!" : `${trip.checklist.length - cek.length} barang lagi`}</p>
+              <p className="mt-1 text-sm text-slate-500">{lengkap ? t("semuaSiap") : t("barangLagi", { n: trip.checklist.length - cek.length })}</p>
             </div>
             <div className="relative">
               <Cincin nilai={cek.length} total={trip.checklist.length} />
@@ -241,7 +251,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
         <div style={{ "--i": 4 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-2 flex items-center gap-2 font-bold text-laut-950">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-laut-100 text-laut-700"><IkonTanya className="h-4 w-4" /></span>
-            Tanya jawab
+            {t("tanyaJawab")}
           </p>
           {faqTampil.map((f) => (
             <details key={f.q} open={!!q} className="group border-b border-slate-100 last:border-0">

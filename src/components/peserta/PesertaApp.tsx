@@ -5,6 +5,7 @@ import { SAYA_CONTOH } from "@/lib/contoh";
 import { keluar, kunciToken, kunciTrip, muatSaya, muatTrip, type PaketTrip } from "@/lib/data-peserta";
 import { useSekarang } from "@/lib/jam";
 import { baca, tulis, useSimpan } from "@/lib/simpan";
+import { kamus, useBahasa, type Kunci } from "@/lib/bahasa";
 import { gayaTema } from "@/lib/tema";
 import type { DataSaya } from "@/lib/types";
 import { IkonInfo, IkonKalender, IkonKartu, IkonLokasi, IkonRumah, IkonSinyal } from "../Ikon";
@@ -19,17 +20,18 @@ import { Registrasi } from "./Registrasi";
 
 type Tab = "beranda" | "jadwal" | "kartu" | "info";
 const KUNCI_GELAP = "infotrip:mode-gelap";
-const TABS: { id: Tab; label: string; Ikon: typeof IkonRumah }[] = [
-  { id: "beranda", label: "Beranda", Ikon: IkonRumah },
-  { id: "jadwal", label: "Jadwal", Ikon: IkonKalender },
-  { id: "kartu", label: "Kartu", Ikon: IkonKartu },
-  { id: "info", label: "Info", Ikon: IkonInfo },
+const TABS: { id: Tab; kunci: Kunci; Ikon: typeof IkonRumah }[] = [
+  { id: "beranda", kunci: "tabBeranda", Ikon: IkonRumah },
+  { id: "jadwal", kunci: "tabJadwal", Ikon: IkonKalender },
+  { id: "kartu", kunci: "tabKartu", Ikon: IkonKartu },
+  { id: "info", kunci: "tabInfo", Ikon: IkonInfo },
 ];
 
 export function PesertaApp({ slug }: { slug: string }) {
   const token = useSimpan<string>(kunciToken(slug));
   // Salinan trip terakhir di HP ini (kosong di server, jadi tidak menimbulkan ketidakcocokan saat hydrate).
   const lama = useSimpan<PaketTrip>(kunciTrip(slug));
+  const t = kamus(useBahasa());
   const sekarang = useSekarang();
   const [paket, setPaket] = useState<PaketTrip | null>(null);
   const [saya, setSaya] = useState<DataSaya | null>(null);
@@ -113,7 +115,7 @@ export function PesertaApp({ slug }: { slug: string }) {
       <div className="px-6 pt-24 text-center">
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-laut-100 text-laut-700"><IkonLokasi className="h-8 w-8" /></span>
         <p className="mt-4 text-xl font-extrabold text-laut-950">{error}</p>
-        <p className="mt-1 text-slate-500">Periksa kembali link dari panitia.</p>
+        <p className="mt-1 text-slate-500">{t("salahLink")}</p>
       </div>
     );
   }
@@ -170,7 +172,8 @@ type PropsTampilan = {
 
 /** Tampilan aplikasi peserta. Dipakai untuk isi asli maupun skeleton (tanpa aksi). */
 function Tampilan({ paket, saya, sekarang, tab, offline, animasi, onPindah = () => {}, onSegarkan, onKeluar, notifikasi, token, gelap, onGelap }: PropsTampilan) {
-  const posisi = TABS.findIndex((t) => t.id === tab);
+  const t = kamus(useBahasa());
+  const posisi = TABS.findIndex((x) => x.id === tab);
   // Pengumuman darurat terbaru tampil sebagai banner di atas, sampai panitia menggantinya.
   const darurat = paket.pengumuman
     .filter((p) => pisahDarurat(p.isi).darurat)
@@ -179,7 +182,7 @@ function Tampilan({ paket, saya, sekarang, tab, offline, animasi, onPindah = () 
     <div className="pb-32">
       {offline && (
         <p className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-mentari-400 px-4 py-2 text-center text-xs font-bold text-laut-950">
-          <IkonSinyal /> Sedang offline, menampilkan data terakhir
+          <IkonSinyal /> {t("offline")}
         </p>
       )}
 
@@ -208,7 +211,7 @@ function Tampilan({ paket, saya, sekarang, tab, offline, animasi, onPindah = () 
       <div className="mt-8 flex flex-col items-center gap-2 px-4 text-sm">
         {saya && (
           <button onClick={onKeluar} className="text-slate-400">
-            Bukan {saya.nama.split(" ")[0]}? Ganti peserta
+            {t("gantiPeserta", { nama: saya.nama.split(" ")[0] })}
           </button>
         )}
       </div>
@@ -220,10 +223,10 @@ function Tampilan({ paket, saya, sekarang, tab, offline, animasi, onPindah = () 
             className="absolute bottom-1.5 top-1.5 rounded-2xl bg-white/15 transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]"
             style={{ width: `calc((100% - 0.75rem) / ${TABS.length})`, transform: `translateX(${posisi * 100}%)` }}
           />
-          {TABS.map(({ id, label, Ikon }) => (
+          {TABS.map(({ id, kunci, Ikon }) => (
             <button key={id} onClick={() => onPindah(id)} className={`relative z-10 flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-semibold transition-colors ${tab === id ? "text-white" : "text-white/55"}`}>
               <Ikon className={`h-[22px] w-[22px] transition-transform duration-300 ${tab === id ? "-translate-y-0.5 scale-110" : ""}`} />
-              {label}
+              {t(kunci)}
             </button>
           ))}
         </div>

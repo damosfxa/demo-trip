@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { alamatDasar } from "@/lib/alamat";
 import { pesanError, supabase } from "@/lib/supabase";
 import { Pemandangan } from "../Pemandangan";
 import { Label, field, tombol, tombolGaris } from "./ui";
 
 /** Alamat tujuan setelah tautan di email dibuka. Harus sama dengan yang diizinkan di pengaturan Supabase. */
-const tujuanTautan = () => `${window.location.origin}/panitia/`;
+const tujuanTautan = () => `${alamatDasar()}/panitia/`;
 
 export function Login() {
   const [email, setEmail] = useState("");

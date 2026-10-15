@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
+import { alamatDasar } from "./alamat";
 import type { Absen, Agenda, PesanPribadi, Pengumuman, Peserta, Trip } from "./types";
 
 export type Peran = "owner" | "viewer" | null;
@@ -62,7 +63,7 @@ export async function muatDataTrip(id: string): Promise<DataTrip> {
 }
 
 /** Link peserta untuk sebuah trip, mengikuti alamat aplikasi saat ini. */
-export const linkPeserta = (slug: string) => `${window.location.origin}/?t=${slug}`;
+export const linkPeserta = (slug: string) => `${alamatDasar()}/?t=${slug}`;
 
 export function unduhCsv(nama: string, baris: (string | number | null)[][]) {
   const csv = baris.map((b) => b.map((x) => `"${String(x ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");

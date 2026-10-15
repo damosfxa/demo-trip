@@ -12,8 +12,8 @@ import { useTerjemahan } from "@/lib/terjemah";
 const stempel = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 const escIcs = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 
-/** Unduh satu acara sebagai file kalender (.ics), bisa dibuka di kalender HP mana pun. */
-function unduhIcs(a: Agenda, selesai: number, trip: Trip) {
+/** Tambah satu acara ke kalender HP lewat file .ics. Di HP memakai menu bagikan supaya langsung bisa dibuka di aplikasi kalender. */
+async function unduhIcs(a: Agenda, selesai: number, trip: Trip) {
   const teks = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -29,12 +29,22 @@ function unduhIcs(a: Agenda, selesai: number, trip: Trip) {
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n");
-  const url = URL.createObjectURL(new Blob([teks], { type: "text/calendar;charset=utf-8" }));
+  const nama = `${a.judul.replace(/[^\w\s-]/g, "").trim() || "agenda"}.ics`;
+  const berkas = new File([teks], nama, { type: "text/calendar" });
+  if (navigator.canShare?.({ files: [berkas] })) {
+    try {
+      await navigator.share({ files: [berkas], title: a.judul });
+      return;
+    } catch {
+      // Dibatalkan pengguna atau tidak didukung: coba unduhan biasa di bawah.
+    }
+  }
   const el = document.createElement("a");
-  el.href = url;
-  el.download = `${a.judul.replace(/[^\w\s-]/g, "").trim() || "agenda"}.ics`;
+  el.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(teks);
+  el.download = nama;
+  document.body.appendChild(el);
   el.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  el.remove();
 }
 
 export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[]; sekarang: number }) {
@@ -54,7 +64,7 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
       <h1 className="text-3xl font-extrabold tracking-tight text-laut-950">{t("jadwalJudul")}</h1>
 
       {!h ? (
-        <p className="mt-6 rounded-3xl bg-white p-6 text-center text-slate-500">{t("jadwalBelum")}</p>
+ <p className="mt-6 rounded-3xl p-6 text-center text-slate-500">{t("jadwalBelum")}</p>
       ) : (
         <>
           {/* Pilihan hari, menempel di atas saat digulir */}
@@ -97,7 +107,7 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
                   >
                     {i + 1}
                   </span>
-                  <div className={`flex-1 rounded-3xl bg-white p-4 shadow-sm ring-1 transition ${sedang ? "ring-2 ring-emerald-400" : "ring-black/5"} ${lewat ? "opacity-55" : ""}`}>
+ <div className={`flex-1 rounded-3xl p-4 transition ${sedang ? "ring-2 ring-emerald-400" : ""} ${lewat ? "opacity-55" : ""}`}>
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-bold tabular-nums text-laut-700">
                         {jamAcara(a.mulai, a, trip.zona)}
@@ -108,7 +118,7 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
                     <p className="mt-0.5 text-[17px] font-bold text-laut-950">{tr(a.judul)}</p>
                     {a.lokasi && <p className="mt-1 flex items-center gap-1 text-sm text-slate-500"><IkonLokasi className="h-4 w-4 shrink-0" /> {tr(a.lokasi ?? "")}</p>}
                     {a.ket && <p className="mt-1 text-sm leading-relaxed text-slate-600">{tr(a.ket ?? "")}</p>}
-                    <button onClick={() => unduhIcs(a, akhir(agenda, pos), trip)} className="mt-3 flex items-center gap-1.5 rounded-xl bg-laut-50 px-3 py-1.5 text-xs font-bold text-laut-800 transition active:scale-95">
+                    <button onClick={() => void unduhIcs(a, akhir(agenda, pos), trip)} className="mt-3 flex items-center gap-1.5 rounded-xl bg-laut-50 px-3 py-1.5 text-xs font-bold text-laut-800 transition active:scale-95">
                       <IkonKalender className="h-3.5 w-3.5" /> {t("tambahKalender")}
                     </button>
                   </div>

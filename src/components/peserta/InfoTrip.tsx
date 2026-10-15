@@ -64,7 +64,7 @@ function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: str
   };
 
   return (
-    <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+ <div className="rounded-3xl p-5 ">
       <div className="flex items-center justify-between gap-3">
         <p className="font-bold text-laut-950">{t("dataSaya")}</p>
         <button onClick={() => setBuka((b) => !b)} className="text-sm font-bold text-laut-700">{buka ? t("tutup") : t("ubah")}</button>
@@ -141,7 +141,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
         </label>
       )}
 
-      {q && !adaHasil && <p className="rounded-3xl bg-white p-6 text-center text-slate-500 shadow-sm ring-1 ring-black/5">{t("tidakCocok", { q: cari })}</p>}
+ {q && !adaHasil && <p className="rounded-3xl p-6 text-center text-slate-500 ">{t("tidakCocok", { q: cari })}</p>}
 
       {/* Titik kumpul dengan peta */}
       {trip.titik_kumpul && !q && (
@@ -181,13 +181,13 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
 
       {token && onSegarkan && !q && <DataSaya trip={trip} token={token} isianAwal={isianSaya ?? {}} onSimpan={onSegarkan} />}
 
-      <button onClick={() => gantiBahasa(bahasa === "en" ? "id" : "en")} className="flex w-full items-center justify-between rounded-3xl bg-white p-4 text-left text-sm font-semibold text-laut-950 shadow-sm ring-1 ring-black/5">
+ <button onClick={() => gantiBahasa(bahasa === "en" ? "id" : "en")} className="flex w-full items-center justify-between rounded-3xl p-4 text-left text-sm font-semibold text-laut-950 ">
         <span>{t("bahasa")}</span>
         <span className="text-laut-700">{bahasa === "en" ? "English" : "Indonesia"}</span>
       </button>
 
       {onGelap && (
-        <button onClick={onGelap} className="flex w-full items-center justify-between rounded-3xl bg-white p-4 text-left text-sm font-semibold text-laut-950 shadow-sm ring-1 ring-black/5">
+ <button onClick={onGelap} className="flex w-full items-center justify-between rounded-3xl p-4 text-left text-sm font-semibold text-laut-950 ">
           <span>{t("modeMalam")}</span>
           <span className="text-laut-700">{gelap ? t("aktif") : t("nonaktif")}</span>
         </button>
@@ -195,7 +195,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
 
       {/* Info penting */}
       {infoTampil.length > 0 && (
-        <div style={{ "--i": 2 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+ <div style={{ "--i": 2 } as React.CSSProperties} className="rounded-3xl p-5 ">
           <p className="mb-3 flex items-center gap-2 font-bold text-laut-950">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-laut-100 text-laut-700"><IkonInfo className="h-4 w-4" /></span>
             {t("infoPenting")}
@@ -216,7 +216,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
 
       {/* Barang bawaan */}
       {checklistTampil.length > 0 && (
-        <div style={{ "--i": 3 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+ <div style={{ "--i": 3 } as React.CSSProperties} className="rounded-3xl p-5 ">
           <div className="mb-2 flex items-center justify-between">
             <div>
               <p className="flex items-center gap-2 font-bold text-laut-950">
@@ -250,7 +250,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
 
       {/* Tanya jawab */}
       {faqTampil.length > 0 && (
-        <div style={{ "--i": 4 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+ <div style={{ "--i": 4 } as React.CSSProperties} className="rounded-3xl p-5 ">
           <p className="mb-2 flex items-center gap-2 font-bold text-laut-950">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-laut-100 text-laut-700"><IkonTanya className="h-4 w-4" /></span>
             {t("tanyaJawab")}

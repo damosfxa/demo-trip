@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { alamatDasar } from "@/lib/alamat";
 import { pesanError, supabase } from "@/lib/supabase";
 import { Kartu, field, tombol } from "./ui";
 
@@ -33,7 +34,7 @@ export function TimPanitia() {
     // 1. Buat akun dan kirim tautan masuk ke email. Peserta tidak perlu membuat password.
     const { error: e1 } = await supabase.auth.signInWithOtp({
       email: alamat,
-      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/panitia/` },
+      options: { shouldCreateUser: true, emailRedirectTo: `${alamatDasar()}/panitia/` },
     });
     if (e1) {
       setProses(false);

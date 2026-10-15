@@ -53,7 +53,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
         <h1 className="anim-naik mt-1 text-5xl font-extrabold tracking-tight drop-shadow-sm" style={{ animationDelay: "80ms" }}>{trip.tujuan}</h1>
         <p className="anim-naik mt-1 font-medium text-white/90" style={{ animationDelay: "140ms" }}>{trip.nama}</p>
         <div className="anim-naik mt-3 flex flex-wrap items-center gap-2" style={{ animationDelay: "200ms" }}>
-          <span className="inline-flex w-fit items-center gap-2 px-0 py-1 text-sm font-semibold text-white/90">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md">
             <IkonKalender className="h-4 w-4" /> {rentangTanggal(trip.mulai, trip.selesai)}
           </span>
         </div>
@@ -83,8 +83,8 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
         {saya && (
           <button onClick={keKartu} style={{ "--i": 2 } as React.CSSProperties} className="grid w-full grid-cols-2 gap-3 text-left">
             {[
-              { Ikon: IkonBus, label: t("bus"), nilai: saya.bus, warna: "bg-laut-100 text-laut-700" },
-              { Ikon: IkonKasur, label: t("kamar"), nilai: saya.kamar, warna: "bg-pasir-200 text-karang-600" },
+              { Ikon: IkonBus, label: t("bus"), nilai: saya.bus, warna: "text-laut-700" },
+              { Ikon: IkonKasur, label: t("kamar"), nilai: saya.kamar, warna: "text-karang-600" },
             ].map(({ Ikon, label, nilai, warna }) => (
               <div key={label} className="p-4 transition active:scale-[0.98]">
                 <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${warna}`}><Ikon className="h-5 w-5" /></span>
@@ -164,7 +164,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
 }
 
 const AKSI = "flex flex-col items-center gap-1.5 rounded-2xl py-2.5 text-[11px] font-semibold text-laut-900 transition active:scale-95";
-const LINGKARAN = "flex h-11 w-11 items-center justify-center rounded-2xl bg-laut-50 text-laut-700";
+const LINGKARAN = "flex h-11 w-11 items-center justify-center rounded-2xl text-laut-700";
 
 function AksiCepat({ label, onClick, Ikon }: { label: string; onClick: () => void; Ikon: typeof IkonKartu }) {
   return (

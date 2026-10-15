@@ -165,13 +165,12 @@ export function Pemandangan({ jam, cuaca, latar, className = "" }: { suasana?: S
         </>
       )}
 
-      {/* Pulau dengan gapura (candi bentar) dan pohon kelapa */}
+      {/* Bukit dan batu di tepi laut: netral, tidak mengikuti satu tempat tertentu */}
       <g fill={w.pulau}>
-        <path d="M30 200 Q90 176 170 196 Z" />
-        <path d="M70 191 h10 v-26 l-3 -4 v-6 l-2 -3 l-2 3 v6 l-3 4 Z" />
-        <path d="M86 191 h10 v-26 l-3 -4 v-6 l-2 -3 l-2 3 v6 l-3 4 Z" />
-        <path d="M135 196 q2 -24 10 -38" stroke={w.pulau} strokeWidth="3" fill="none" />
-        <path d="M145 158 q-14 -6 -24 2 q12 -2 24 -2 q-8 -12 -20 -12 q12 4 20 12 q2 -14 14 -18 q-10 8 -14 18 q14 -6 24 2 q-12 -2 -24 -2" />
+        <path d="M0 196 Q60 168 130 186 Q175 194 210 200 L210 214 L0 214 Z" />
+        <path d="M260 204 Q320 180 400 196 L400 214 L260 214 Z" />
+        <ellipse cx="88" cy="196" rx="14" ry="6" />
+        <ellipse cx="310" cy="200" rx="9" ry="4" />
       </g>
 
       {/* Laut berlapis dengan ombak bergerak */}

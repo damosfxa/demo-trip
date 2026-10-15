@@ -68,6 +68,7 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
   const [cariTempat, setCariTempat] = useState("");
   const [hasilCari, setHasilCari] = useState<HasilLokasi[]>([]);
   const [mencari, setMencari] = useState(false);
+  const [namaIkonik, setNamaIkonik] = useState("");
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 
   const simpan = async (e: React.FormEvent) => {
@@ -133,6 +134,20 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
           <input className={field} value={cariTempat} onChange={(e) => setCariTempat(e.target.value)} placeholder="Misalnya Dieng, Tokyo, atau Mekkah" disabled={d} />
           <button type="button" disabled={d || mencari || cariTempat.trim().length < 2} onClick={async () => { setMencari(true); setHasilCari(await cariLokasi(cariTempat)); setMencari(false); }} className={tombol}>{mencari ? "Mencari..." : "Cari"}</button>
         </div>
+        {f.lokasi_nama && (
+          <div className="space-y-2 rounded-xl bg-pasir-50 p-3">
+            <p className="text-sm font-semibold text-laut-950">Foto sampul</p>
+            <p className="text-xs text-slate-500">Tulis nama tempat yang ikonik supaya fotonya tepat, misalnya Gedung Sate, Tugu Monas, atau Borobudur. Biarkan kosong untuk memakai nama lokasi.</p>
+            <div className="flex gap-2">
+              <input className={field} value={namaIkonik} onChange={(e) => setNamaIkonik(e.target.value)} placeholder="Gedung Sate" disabled={d} />
+              <button type="button" disabled={d} onClick={async () => {
+                const foto = await fotoTempatBerjenjang(namaIkonik.trim() || f.lokasi_nama);
+                if (foto) setF((x) => ({ ...x, cover_url: foto }));
+                else alert("Foto belum ketemu. Coba nama tempat yang lain.");
+              }} className={tombol}>Cari foto</button>
+            </div>
+          </div>
+        )}
         {f.lokasi_nama && !f.cover_url && (
           <button type="button" disabled={d} onClick={async () => {
             const foto = await fotoTempatBerjenjang(f.lokasi_nama);

@@ -9,6 +9,7 @@ import { gayaTema } from "@/lib/tema";
 import type { DataSaya } from "@/lib/types";
 import { IkonInfo, IkonKalender, IkonKartu, IkonLokasi, IkonRumah, IkonSegar, IkonSinyal } from "../Ikon";
 import { pisahDarurat } from "@/lib/darurat";
+import { perbaruiAplikasi } from "@/lib/pembaruan";
 import { Beranda } from "./Beranda";
 import { InfoTrip } from "./InfoTrip";
 import { Jadwal } from "./Jadwal";
@@ -215,6 +216,9 @@ function Tampilan({ paket, saya, sekarang, tab, offline, animasi, memperbarui, o
       <div className="mt-8 flex flex-col items-center gap-2 px-4 text-sm">
         <button onClick={onSegarkan} className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 font-semibold text-laut-700 shadow-sm ring-1 ring-black/5">
           <IkonSegar className={memperbarui ? "h-4 w-4 animate-spin" : "h-4 w-4"} /> Perbarui data
+        </button>
+        <button onClick={perbaruiAplikasi} className="flex items-center gap-1.5 rounded-full bg-laut-900 px-4 py-2 font-semibold text-white shadow-sm">
+          Perbarui aplikasi
         </button>
         {saya && (
           <button onClick={onKeluar} className="text-slate-400">

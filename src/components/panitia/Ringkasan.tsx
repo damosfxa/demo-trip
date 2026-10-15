@@ -49,14 +49,16 @@ export function Ringkasan({ data }: PropsTab) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <Kartu className="!p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Terdaftar</p>
-          <p className="text-4xl font-extrabold text-laut-900"><Angka nilai={peserta.length} /></p>
-        </Kartu>
-        <Kartu className="!p-4">
+        <div className="rounded-3xl bg-laut-900 p-5 text-white shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-white/65">Terdaftar</p>
+          <p className="mt-2 text-4xl font-extrabold"><Angka nilai={peserta.length} /></p>
+          <p className="mt-1 text-xs text-white/60">peserta</p>
+        </div>
+        <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Belum ada bus / kamar</p>
-          <p className="text-4xl font-extrabold text-karang-600"><Angka nilai={tanpaBus} /> <span className="text-xl text-slate-300">/</span> <Angka nilai={tanpaKamar} /></p>
-        </Kartu>
+          <p className="mt-2 text-4xl font-extrabold text-karang-600"><Angka nilai={tanpaBus} /> <span className="text-xl text-slate-300">/</span> <Angka nilai={tanpaKamar} /></p>
+          <p className="mt-1 text-xs text-slate-500">bus / kamar</p>
+        </div>
       </div>
 
       {(busPenuh.length > 0 || kamarPenuh.length > 0) && (

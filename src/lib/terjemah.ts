@@ -21,7 +21,7 @@ const ambilVersi = () => versi;
 async function ambil(butuh: string[]) {
   butuh.forEach((t) => sedang.add(t));
   try {
-    const { data, error } = await supabase.functions.invoke("terjemahkan", { body: { texts: butuh } });
+    const { data, error } = await supabase.functions.invoke("terjemahan", { body: { texts: butuh } });
     if (error || !data?.hasil) return;
     for (const [asli, en] of Object.entries(data.hasil as Record<string, string>)) cache.set(asli, en);
     versi++;

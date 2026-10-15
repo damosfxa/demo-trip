@@ -5,6 +5,7 @@ import Link from "next/link";
 import { alamatDasar } from "@/lib/alamat";
 import { pesanError, supabase } from "@/lib/supabase";
 import { Pemandangan } from "../Pemandangan";
+import { IkonMata, IkonMataCoret } from "../Ikon";
 import { Label, field, tombol, tombolGaris } from "./ui";
 
 /** Alamat tujuan setelah tautan di email dibuka. Harus sama dengan yang diizinkan di pengaturan Supabase. */
@@ -14,6 +15,7 @@ export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tampilPassword, setTampilPassword] = useState(false);
+  const [lihatPassword, setLihatPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [kabar, setKabar] = useState<string | null>(null);
   const [proses, setProses] = useState(false);
@@ -71,7 +73,12 @@ export function Login() {
         {tampilPassword && (
           <form onSubmit={masukPassword} className="space-y-3">
             <Label teks="Password">
-              <input className={field} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+              <div className="relative">
+                <input className={`${field} pr-12`} type={lihatPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+                <button type="button" onClick={() => setLihatPassword((v) => !v)} aria-label={lihatPassword ? "Sembunyikan password" : "Lihat password"} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500">
+                  {lihatPassword ? <IkonMataCoret className="h-5 w-5" /> : <IkonMata className="h-5 w-5" />}
+                </button>
+              </div>
             </Label>
             <button disabled={proses} className={`${tombolGaris} w-full`}>{proses ? "Masuk..." : "Masuk"}</button>
           </form>

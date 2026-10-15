@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { alamatDasar } from "@/lib/alamat";
 import { pesanError, supabase } from "@/lib/supabase";
+import { IkonSampah } from "../Ikon";
 import { Kartu, field, tombol } from "./ui";
 
 /** Owner cukup mengisi email. Sistem membuat akun, mengirim tautan masuk ke email itu, dan langsung memberi perannya. */
@@ -66,7 +67,17 @@ export function TimPanitia() {
         {(daftar ?? []).map((p) => (
           <li key={p.email} className="flex justify-between py-2 text-sm">
             <span className="truncate">{p.email}</span>
-            <span className="font-semibold text-slate-500">{p.peran === "owner" ? "Bisa mengubah" : "Lihat saja"}</span>
+            <span className="flex items-center gap-3">
+              <span className="font-semibold text-slate-500">{p.peran === "owner" ? "Bisa mengubah" : "Lihat saja"}</span>
+              <button type="button" aria-label={`Hapus akses ${p.email}`} onClick={async () => {
+                if (!confirm(`Hapus akses panitia untuk ${p.email}?`)) return;
+                const { data, error } = await supabase.rpc("hapus_staff", { p_email: p.email });
+                setInfo(error ? pesanError(error) : String(data));
+                setMuat((x) => x + 1);
+              }} className="text-red-600">
+                <IkonSampah className="h-4 w-4" />
+              </button>
+            </span>
           </li>
         ))}
       </ul>

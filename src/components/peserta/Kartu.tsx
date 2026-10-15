@@ -6,6 +6,7 @@ import type { DataSaya, Trip } from "@/lib/types";
 import { relatif, rentangTanggal } from "@/lib/waktu";
 import { IkonPesawat } from "../Ikon";
 import { kamus, useBahasa } from "@/lib/bahasa";
+import { useTerjemahan } from "@/lib/terjemah";
 
 /** Isi QR kartu peserta. Panitia memindainya untuk absensi. */
 export const isiQr = (id: string) => `INFOTRIP:${id}`;
@@ -16,7 +17,9 @@ const kode = (t: string) => t.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase(
 export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
   const [qr, setQr] = useState<string | null>(null);
   const [besar, setBesar] = useState(false);
-  const t = kamus(useBahasa());
+  const bahasa = useBahasa();
+  const t = kamus(bahasa);
+  const tr = useTerjemahan(trip.titik_absen, bahasa === "en");
 
   useEffect(() => {
     let aktif = true;
@@ -116,7 +119,7 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
                 ) : (
                   <span className="text-xs text-slate-400">{t("belum")}</span>
                 )}
-                <span className={`mt-1.5 text-xs font-semibold ${hadir.has(titik) ? "text-laut-900" : "text-slate-500"}`}>{titik}</span>
+                <span className={`mt-1.5 text-xs font-semibold ${hadir.has(titik) ? "text-laut-900" : "text-slate-500"}`}>{tr(titik)}</span>
               </div>
             );
           })}

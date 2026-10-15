@@ -181,6 +181,7 @@ body {
 .mode-gelap .text-slate-500, .mode-gelap .text-slate-400 { color: #9fb3c1 !important; }
 .mode-gelap .text-laut-700, .mode-gelap .text-laut-600 { color: #7fd0f0 !important; }
 .mode-gelap .shadow-sm, .mode-gelap .shadow-lg { box-shadow: none !important; }
+.mode-gelap img[src="/ikon/bus.png"] { filter: invert(1); }
 .mode-gelap input, .mode-gelap select, .mode-gelap textarea { background-color: #0f2433 !important; color: #e6eef3 !important; border-color: #27485e !important; }
 
 /* Panel panitia: lebar layar dilonggarkan, tampilan peserta tetap selebar HP */

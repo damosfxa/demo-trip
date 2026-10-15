@@ -1,5 +1,10 @@
-// Ilustrasi pemandangan pantai yang bergerak (SVG, tanpa gambar luar, tetap tampil saat offline).
-// Warnanya mengikuti waktu: siang, senja, atau malam.
+"use client";
+
+import { useSekarang } from "@/lib/jam";
+
+// Ilustrasi pemandangan pantai (SVG dengan gambar matahari, bulan, awan, dan pesawat).
+// Matahari dan bulan bergerak mengikuti jam asli: matahari terbit sekitar pukul 5, terbenam sekitar 18.30,
+// lalu bulan naik sampai pagi. Perpindahan dibuat halus lewat transisi CSS.
 
 export type Suasana = "siang" | "senja" | "malam";
 
@@ -9,18 +14,47 @@ export function suasanaDari(jam: number): Suasana {
   return "siang";
 }
 
-const WARNA: Record<Suasana, { langit: string; langitBawah: string; matahari: string; gunungJauh: string; gunung: string; laut: string; lautMuda: string; pulau: string; awan: string }> = {
-  siang: { langit: "#7cc8e3", langitBawah: "#b9e3f1", matahari: "#fbc84b", gunungJauh: "#8fbfcf", gunung: "#5f9fb3", laut: "#11789f", lautMuda: "#2a9dc4", pulau: "#0a3a52", awan: "#ffffff" },
-  senja: { langit: "#f39a7b", langitBawah: "#f9c58f", matahari: "#fde68a", gunungJauh: "#c98a8a", gunung: "#9a6476", laut: "#5b4f7d", lautMuda: "#7c6a96", pulau: "#2e2340", awan: "#fde2cf" },
-  malam: { langit: "#0a2236", langitBawah: "#123552", matahari: "#f5f0dc", gunungJauh: "#1b3d58", gunung: "#14304a", laut: "#0b2a42", lautMuda: "#123b5a", pulau: "#06182a", awan: "#2c4a66" },
+/** Jam di zona tertentu sebagai pecahan (misalnya 16.5 untuk 16.30). */
+export function jamPecahan(zona: string, waktu: number) {
+  const bagian = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: zona }).formatToParts(new Date(waktu || Date.now()));
+  const jam = Number(bagian.find((b) => b.type === "hour")?.value ?? 0);
+  const menit = Number(bagian.find((b) => b.type === "minute")?.value ?? 0);
+  return jam + menit / 60;
+}
+
+const WARNA: Record<Suasana, { langit: string; langitBawah: string; gunungJauh: string; gunung: string; laut: string; lautMuda: string; pulau: string }> = {
+  siang: { langit: "#7cc8e3", langitBawah: "#b9e3f1", gunungJauh: "#8fbfcf", gunung: "#5f9fb3", laut: "#11789f", lautMuda: "#2a9dc4", pulau: "#0a3a52" },
+  senja: { langit: "#f39a7b", langitBawah: "#f9c58f", gunungJauh: "#c98a8a", gunung: "#9a6476", laut: "#5b4f7d", lautMuda: "#7c6a96", pulau: "#2e2340" },
+  malam: { langit: "#0a2236", langitBawah: "#123552", gunungJauh: "#1b3d58", gunung: "#14304a", laut: "#0b2a42", lautMuda: "#123b5a", pulau: "#06182a" },
 };
+
+const batas = (x: number) => Math.max(0, Math.min(1, x));
 
 // Gelombang yang berulang tiap 200 unit supaya bisa digeser tanpa terlihat sambungannya.
 const gelombang = (y: number, tinggi: number) => `M0 ${y} ` + `q 50 ${-tinggi} 100 0 t 100 0 `.repeat(4) + "V 260 H 0 Z";
 
-export function Pemandangan({ suasana = "siang", className = "" }: { suasana?: Suasana; className?: string }) {
-  const w = WARNA[suasana];
-  const malam = suasana === "malam";
+/** Posisi matahari dan bulan dari jam. Matahari di busur siang, bulan di busur malam. */
+function posisiLangit(jam: number) {
+  const tSiang = batas((jam - 5) / 13.5);
+  const tMalam = batas(((jam - 18.5 + 24) % 24) / 11.5);
+  const matahariTampak = batas(Math.min(jam - 4.5, 19.5 - jam));
+  const bulanTampak = 1 - matahariTampak;
+  return {
+    matahari: { x: 50 + 300 * tSiang, y: 214 - 160 * Math.sin(Math.PI * tSiang), opacity: matahariTampak },
+    bulan: { x: 50 + 300 * tMalam, y: 214 - 150 * Math.sin(Math.PI * tMalam), opacity: bulanTampak },
+  };
+}
+
+export function Pemandangan({ suasana, jam, className = "" }: { suasana?: Suasana; jam?: number; className?: string }) {
+  // Tanpa jam dari pemanggil, pakai jam sekarang (zona Indonesia), diperbarui tiap menit.
+  const waktu = useSekarang();
+  const sekarang = jam ?? (waktu ? jamPecahan("Asia/Jakarta", waktu) : 12);
+  const s = suasana ?? suasanaDari(Math.floor(sekarang));
+  const w = WARNA[s];
+  const langit = posisiLangit(sekarang);
+  const malam = s === "malam";
+  const transisi = { transition: "transform 1.6s ease, opacity 1.6s ease" } as const;
+
   return (
     <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden>
       {/* Langit dua lapis */}
@@ -35,40 +69,27 @@ export function Pemandangan({ suasana = "siang", className = "" }: { suasana?: S
           </circle>
         ))}
 
-      {/* Matahari atau bulan */}
-      <g transform="translate(300 78)">
-        <circle className="sinar" r="34" fill={w.matahari} opacity="0.4" />
-        <circle r="22" fill={w.matahari} />
-        {malam && <circle cx="9" cy="-6" r="20" fill={w.langit} />}
+      {/* Bulan: naik di malam hari, turun pelan saat pagi */}
+      <g style={{ ...transisi, transform: `translate(${langit.bulan.x - 30}px, ${langit.bulan.y - 30}px)`, opacity: langit.bulan.opacity }}>
+        <image href="/ikon/bulan.png" width="60" height="60" />
+      </g>
+
+      {/* Matahari: terbit dari laut, naik, lalu terbenam */}
+      <g style={{ ...transisi, transform: `translate(${langit.matahari.x - 35}px, ${langit.matahari.y - 35}px)`, opacity: langit.matahari.opacity }}>
+        <image href="/ikon/matahari.png" width="70" height="70" />
       </g>
 
       {/* Awan bergerak */}
-      {[{ y: 42, d: 38, s: 1 }, { y: 70, d: 55, s: 0.75, delay: -20 }, { y: 28, d: 70, s: 0.6, delay: -45 }].map((a, i) => (
-        <g key={i} className="awan" style={{ animationDuration: `${a.d}s`, animationDelay: `${a.delay ?? 0}s` }} opacity={malam ? 0.5 : 0.95}>
-          <g transform={`translate(0 ${a.y}) scale(${a.s})`} fill={w.awan}>
-            <ellipse cx="40" cy="10" rx="30" ry="12" />
-            <ellipse cx="62" cy="4" rx="20" ry="14" />
-            <ellipse cx="22" cy="8" rx="16" ry="10" />
-          </g>
+      {[{ y: 40, d: 38, s: 1, delay: 0 }, { y: 70, d: 55, s: 0.7, delay: -20 }, { y: 26, d: 70, s: 0.55, delay: -45 }].map((a, i) => (
+        <g key={i} className="awan" style={{ animationDuration: `${a.d}s`, animationDelay: `${a.delay}s` }} opacity={malam ? 0.45 : 0.95}>
+          <image href="/ikon/awan.png" x="0" y={a.y} width={120 * a.s} height={54 * a.s} />
         </g>
       ))}
 
-      {/* Pesawat dengan jejak putus-putus */}
+      {/* Pesawat terbang melintas (hanya siang) */}
       {!malam && (
         <g className="pesawat">
-          {/* Jejak kondensasi */}
-          <path d="M-90 16.5 H-4" stroke="#fff" strokeWidth="1.4" strokeDasharray="7 7" strokeLinecap="round" opacity="0.7" />
-          <path d="M-60 19.5 H-4" stroke="#fff" strokeWidth="1" strokeDasharray="5 8" strokeLinecap="round" opacity="0.45" />
-          {/* Jet penumpang, tampak samping, menghadap kanan */}
-          <g transform="scale(0.8)">
-            <path d="M25 13.6 L19.5 6.5 H22.6 L31 13.6 Z" fill="#dbe9f0" />
-            <path d="M5.5 14 L1.5 4.2 H5.6 L13 14 Z" fill="#fff" />
-            <path d="M4 14 H44 C50 14 54.2 15.3 56.5 17 C54.2 18.7 50 20 44 20 H7 C4.6 20 3 19 3 17 C3 15.4 3.4 14 4 14 Z" fill="#fff" />
-            <path d="M23 18.2 L15 27.5 H19.4 L33 18.2 Z" fill="#fff" />
-            <path d="M6 17.2 L1.5 21 H5.4 L11 18 Z" fill="#fff" />
-            {[16, 20, 24, 28, 32, 36, 40].map((x) => <circle key={x} cx={x} cy="16.2" r="0.85" fill="#0e5f80" opacity="0.55" />)}
-            <path d="M48.5 15.4 Q51.5 15.6 53.4 16.4 L48.6 16.4 Z" fill="#0e5f80" opacity="0.6" />
-          </g>
+          <image href="/ikon/pesawat.png" x="0" y="0" width="64" height="32" />
         </g>
       )}
 
@@ -95,7 +116,7 @@ export function Pemandangan({ suasana = "siang", className = "" }: { suasana?: S
 
       {/* Kilau cahaya di permukaan laut */}
       {[[250, 222, 40], [290, 232, 26], [210, 240, 18]].map(([x, y, l], i) => (
-        <rect key={i} x={x} y={y} width={l} height="2" rx="1" fill={w.matahari} opacity="0.5">
+        <rect key={i} x={x} y={y} width={l} height="2" rx="1" fill="#fbc84b" opacity="0.5">
           <animate attributeName="opacity" values="0.15;0.6;0.15" dur={`${3 + i}s`} repeatCount="indefinite" />
         </rect>
       ))}

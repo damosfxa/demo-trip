@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Trip } from "@/lib/types";
-import { Pemandangan, suasanaDari } from "../Pemandangan";
+import { Pemandangan, jamPecahan, suasanaDari } from "../Pemandangan";
 
 /** Jam (0-23) di zona waktu trip, untuk memilih suasana siang, senja, atau malam. */
 function jamDi(zona: string, waktu: number) {
@@ -40,7 +40,7 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
           // eslint-disable-next-line @next/next/no-img-element
           <img src={trip.cover_url} alt="" className="anim-zoom h-full w-full object-cover" />
         ) : (
-          <Pemandangan suasana={suasana} className="h-full w-full" />
+          <Pemandangan suasana={suasana} jam={jamPecahan(trip.zona, sekarang)} className="h-full w-full" />
         )}
       </div>
       {/* Lapisan gelap di bawah supaya teks selalu terbaca */}

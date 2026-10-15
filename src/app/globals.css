@@ -23,6 +23,17 @@ body {
   background: var(--color-pasir-50);
 }
 
+/* Kunci zoom: cegah ketuk dua kali untuk memperbesar. */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* iPhone memperbesar layar saat kolom isian dengan teks di bawah 16px dipilih. Di HP, kolom isian dibuat 16px. */
+@media (max-width: 767px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+
 /* ===== Animasi ===== */
 @keyframes masuk-naik {
   from { opacity: 0; transform: translateY(14px); }

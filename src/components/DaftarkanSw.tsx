@@ -7,6 +7,17 @@ import { useEffect } from "react";
  * Kalau ada versi baru, halaman langsung dimuat ulang dengan versi terbaru. Peserta tidak perlu melakukan apa-apa.
  */
 export function DaftarkanSw() {
+  // Safari iPhone mengabaikan user-scalable=no, jadi gerakan cubit untuk zoom dicegah di sini.
+  useEffect(() => {
+    const cegahZoom = (e: Event) => e.preventDefault();
+    document.addEventListener("gesturestart", cegahZoom);
+    document.addEventListener("gesturechange", cegahZoom);
+    return () => {
+      document.removeEventListener("gesturestart", cegahZoom);
+      document.removeEventListener("gesturechange", cegahZoom);
+    };
+  }, []);
+
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !(location.protocol === "https:" || location.hostname === "localhost")) return;
     let reg: ServiceWorkerRegistration | null = null;

@@ -18,7 +18,8 @@ export const metadata: Metadata = {
   openGraph: { title: judul, description: deskripsi, type: "website", locale: "id_ID" },
 };
 
-export const viewport: Viewport = { themeColor: "#0a3a52", width: "device-width", initialScale: 1, viewportFit: "cover" };
+// Zoom dikunci supaya terasa seperti aplikasi (PWA), bukan halaman web.
+export const viewport: Viewport = { themeColor: "#0a3a52", width: "device-width", initialScale: 1, maximumScale: 1, userScalable: false, viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { SAYA_CONTOH } from "@/lib/contoh";
-import { keluar, kunciToken, kunciTrip, muatSaya, muatTrip, type PaketTrip } from "@/lib/data-peserta";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { PAKET_CONTOH, SAYA_CONTOH } from "@/lib/contoh";
+import { keluar, kunciToken, kunciTrip, muatSaya, muatTrip, salinanSaya, type PaketTrip } from "@/lib/data-peserta";
 import { useSekarang } from "@/lib/jam";
 import { baca, tulis, useSimpan } from "@/lib/simpan";
 import { kamus, useBahasa, type Kunci } from "@/lib/bahasa";
@@ -20,6 +20,8 @@ import { Registrasi } from "./Registrasi";
 
 type Tab = "beranda" | "jadwal" | "kartu" | "info";
 const KUNCI_GELAP = "infotrip:mode-gelap";
+// Penanda satu sesi tab: pertama kali dibuka tampil layar pembuka, setelah dimuat ulang tampil skeleton.
+const KUNCI_SESI = "infotrip:sesi-dibuka";
 const TABS: { id: Tab; kunci: Kunci; Ikon: typeof IkonRumah }[] = [
   { id: "beranda", kunci: "tabBeranda", Ikon: IkonRumah },
   { id: "jadwal", kunci: "tabJadwal", Ikon: IkonKalender },
@@ -32,6 +34,24 @@ export function PesertaApp({ slug }: { slug: string }) {
   // Salinan trip terakhir di HP ini (kosong di server, jadi tidak menimbulkan ketidakcocokan saat hydrate).
   const lama = useSimpan<PaketTrip>(kunciTrip(slug));
   const t = kamus(useBahasa());
+  const sudahDibuka = useSyncExternalStore(
+    () => () => {},
+    () => {
+      try {
+        return sessionStorage.getItem(KUNCI_SESI) === "1";
+      } catch {
+        return false;
+      }
+    },
+    () => false,
+  );
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(KUNCI_SESI, "1");
+    } catch {
+      // Penyimpanan sesi tidak tersedia: aplikasi tetap jalan, hanya layar pembuka muncul setiap kali.
+    }
+  }, []);
   const sekarang = useSekarang();
   const [paket, setPaket] = useState<PaketTrip | null>(null);
   const [saya, setSaya] = useState<DataSaya | null>(null);
@@ -121,7 +141,14 @@ export function PesertaApp({ slug }: { slug: string }) {
   }
   // Layar muat yang hidup selama data dimuat, dengan nama trip dari salinan terakhir di HP ini bila ada.
   if (!paket || token === undefined) {
-    return <LayarMuat nama={lama?.trip.nama} tujuan={lama?.trip.tujuan} tema={lama?.trip.tema} />;
+    if (!sudahDibuka) return <LayarMuat nama={lama?.trip.nama} tujuan={lama?.trip.tujuan} tema={lama?.trip.tema} />;
+    // Muat ulang di tab yang sama: tampilkan skeleton dari salinan terakhir, bukan layar pembuka.
+    const sal = lama ?? PAKET_CONTOH;
+    return (
+      <div className="mode-kerangka" aria-busy="true" aria-label="Memuat" style={gayaTema(sal.trip.tema)}>
+        {token ? <Tampilan paket={sal} saya={salinanSaya(slug) ?? SAYA_CONTOH} sekarang={sekarang} tab="beranda" token={token} /> : <Registrasi trip={sal.trip} />}
+      </div>
+    );
   }
   // Warna mengikuti tema agen yang dipilih panitia.
   if (!token) return <div className="anim-pudar" style={gayaTema(paket.trip.tema)}><Registrasi trip={paket.trip} /></div>;

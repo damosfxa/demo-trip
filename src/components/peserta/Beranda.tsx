@@ -178,7 +178,7 @@ function AksiCepat({ label, onClick, Ikon }: { label: string; onClick: () => voi
 function AksiTautan({ label, href, Ikon, warna }: { label: string; href: string; Ikon: typeof IkonKartu; warna?: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={AKSI}>
-      <span className={`${LINGKARAN} ${warna ?? ""}`}><Ikon className="h-5 w-5" /></span>
+      <span className={warna ? `${LINGKARAN.replace("bg-laut-50 text-laut-700", "")} ${warna}` : LINGKARAN}><Ikon className="h-5 w-5" /></span>
       {label}
     </a>
   );

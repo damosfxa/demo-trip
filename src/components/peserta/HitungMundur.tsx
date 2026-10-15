@@ -28,7 +28,7 @@ export function HitungMundur({ trip, agenda }: { trip: Trip; agenda: Agenda[] })
   ];
 
   return (
-    <div className="rounded-3xl bg-white p-4 shadow-[0_12px_30px_-12px_rgba(6,42,61,0.35)] ring-1 ring-black/5">
+    <div className="p-2">
       <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-laut-700">{t("menuju")}</p>
       <div className="grid grid-cols-4 gap-2">
         {kotak.map((k) => (

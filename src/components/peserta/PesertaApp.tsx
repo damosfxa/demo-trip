@@ -96,6 +96,8 @@ export function PesertaApp({ slug }: { slug: string }) {
     const dilihat = baca<string[]>(kunci);
     if (dilihat) {
       const baru = semua.filter((k) => !dilihat.includes(k.id));
+      // Membaca localStorage (sistem eksternal) setelah data dimuat, jadi setState di effect memang disengaja.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (baru.length) setKabar(baru[0]);
     }
     tulis(kunci, semua.map((k) => k.id).slice(0, 200));

@@ -60,13 +60,6 @@ function Perkenalan() {
             </div>
           ))}
         </div>
-
-        <p className="pt-4 text-center text-sm text-slate-500">
-          Dibuat oleh{" "}
-          <a href="https://rizkyrhamadani.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-laut-700">
-            Rizky Rhamadani
-          </a>
-        </p>
       </div>
     </div>
   );

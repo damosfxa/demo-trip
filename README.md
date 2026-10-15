@@ -26,6 +26,9 @@ Info perjalanan biasanya dibagikan lewat grup WhatsApp. Jadwal, titik kumpul, da
 - Pencarian di info, barang bawaan, dan tanya jawab.
 - Salin titik kumpul dan info penting dengan satu ketukan.
 - Bisa dipasang sebagai aplikasi di layar HP dan tetap terbuka tanpa sinyal setelah pernah dibuka.
+- Dua bahasa (Indonesia dan English), dengan terjemahan otomatis isi trip.
+- Cuaca dan jam matahari terbit serta terbenam untuk lokasi trip di seluruh dunia.
+- Foto sampul dari lokasi trip.
 
 **Untuk panitia**
 - Ringkasan trip: jumlah peserta, kehadiran per titik, dan peserta per departemen.

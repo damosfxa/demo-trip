@@ -90,9 +90,14 @@ Status per 16 Okt 2026. Lihat [QA.md](QA.md) untuk hasil tes.
 | FR-37 | Duplikasi trip dengan jadwal yang digeser | [U] | P1 | Ada |
 | FR-38 | Peserta mengubah nomor HP dan isian sendiri | [U] | P1 | Ada, butuh migrasi |
 | FR-39 | Mode malam untuk peserta, disimpan di HP | [U] | P2 | Ada, versi sederhana |
-| FR-40 | Pengingat H-1 dan pengumuman terjadwal | [U] | P2 | Belum, butuh penjadwal di server |
-| FR-41 | Undang panitia lain dari panel | [U] | P2 | Belum, butuh akses admin |
-| FR-42 | Dua bahasa (Indonesia dan Inggris) | [U] | P2 | Belum |
+| FR-40 | Pengingat H-1 dan pengumuman terjadwal (pg_cron, zona waktu trip) | [U] | P2 | Ada, butuh migrasi tahap 2 dan pg_cron aktif |
+| FR-41 | Undang panitia lain dari panel lewat tautan email | [U] | P2 | Ada, butuh Site URL Supabase |
+| FR-42 | Dua bahasa (Indonesia dan English) untuk peserta, dengan terjemahan otomatis isi trip (DeepL) | [U] | P2 | Ada, butuh secret DEEPL_API_KEY |
+| FR-43 | Lokasi trip di seluruh dunia dengan zona waktu otomatis | [U] | P1 | Ada, butuh migrasi lokasi |
+| FR-44 | Foto sampul asli dari lokasi trip lewat Unsplash | [U] | P1 | Ada, butuh secret UNSPLASH_ACCESS_KEY |
+| FR-45 | Cuaca dan waktu terbit serta terbenam matahari asli untuk lokasi trip (Open-Meteo) | [U] | P1 | Ada |
+| FR-46 | Pemandangan dengan matahari, bulan, dan awan yang mengikuti jam asli | [U] | P2 | Ada, gunung masih ilustrasi |
+| FR-47 | Duplikasi trip dengan jadwal yang digeser | [U] | P2 | Ada |
 
 ## 6. Non-functional requirements
 

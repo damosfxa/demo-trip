@@ -21,6 +21,9 @@ Dari brief, ada tiga hal yang menentukan keberhasilan:
 | Token acak untuk peserta | Peserta cukup mendaftar sekali. Token menggantikan login, dan tidak bisa ditebak. |
 | Tampilan dibatasi lebar HP | Brief meminta "mobile only". Di desktop tetap terbaca, tapi tidak dioptimalkan. |
 | Service worker | Halaman yang sudah pernah dibuka tetap bisa dilihat saat sinyal hilang. Ini penting untuk rombongan di bandara atau bus. |
+| Cuaca dan jam matahari dari layanan publik (Open-Meteo) | Data cuaca dan waktu terbit serta terbenam matahari yang sebenarnya untuk lokasi trip, bukan hasil tiruan. |
+| Foto sampul dari Unsplash | Foto asli tempat tujuan, dipilih otomatis dari nama lokasi, dan bisa diganti panitia dengan fotonya sendiri. |
+| Terjemahan otomatis (DeepL) | Panitia menulis dalam bahasa Indonesia, peserta bisa membaca dalam English. Hasil terjemahan disimpan supaya tidak diterjemahkan ulang. |
 
 Dokumen lengkap ada di repo: [PRD.md](PRD.md), [architecture.md](architecture.md), [database-schema.md](database-schema.md), dan [SECURITY.md](SECURITY.md).
 
@@ -30,13 +33,16 @@ Ini yang sudah jalan dan sudah diuji, bukan rencana:
 
 - Registrasi peserta dengan validasi, sampai masuk ke info perjalanan.
 - Info perjalanan: titik kumpul, hotel, penerbangan, pakaian, checklist yang bisa dicentang dan tersimpan, FAQ, dan tombol WhatsApp panitia.
-- Jadwal dengan penanda acara berjalan.
-- Panel panitia: ringkasan, daftar peserta, dan unduh CSV.
+- Jadwal dengan penanda acara berjalan, dan tambah ke kalender HP.
+- Dua bahasa (Indonesia dan English) untuk peserta, dengan terjemahan otomatis isi trip.
+- Lokasi trip di seluruh dunia, dengan cuaca dan waktu matahari terbit serta terbenam yang sebenarnya.
+- Foto sampul dari lokasi trip.
+- Panel panitia: ringkasan, daftar peserta dengan impor CSV, atur bus dan kamar massal, gabung data ganda, cetak kartu dan daftar hadir, absensi, pengumuman dan pengumuman terjadwal, tim panitia, duplikasi trip, dan unduh CSV.
 - Live di https://demo-trip-two.vercel.app/?t=family-gathering-bali
 
 Yang diuji dan hasilnya ada di [QA.md](QA.md). Ada beberapa temuan kecil yang sudah dicatat, seperti nomor WhatsApp dan data contoh yang harus diganti dengan data klien.
 
-Yang belum diuji di HP asli: mode offline, notifikasi, dan scan QR. Ini akan diuji sebelum deal.
+Yang belum diuji di HP asli: mode offline, notifikasi, scan QR, dan pengumuman terjadwal. Ini akan diuji sebelum deal.
 
 ## 4. Timeline
 

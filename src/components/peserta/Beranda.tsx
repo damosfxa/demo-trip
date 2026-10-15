@@ -53,7 +53,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
         <h1 className="anim-naik mt-1 text-5xl font-extrabold tracking-tight drop-shadow-sm" style={{ animationDelay: "80ms" }}>{trip.tujuan}</h1>
         <p className="anim-naik mt-1 font-medium text-white/90" style={{ animationDelay: "140ms" }}>{trip.nama}</p>
         <div className="anim-naik mt-3 flex flex-wrap items-center gap-2" style={{ animationDelay: "200ms" }}>
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-sm font-semibold backdrop-blur-md">
+          <span className="inline-flex w-fit items-center gap-2 px-0 py-1 text-sm font-semibold text-white/90">
             <IkonKalender className="h-4 w-4" /> {rentangTanggal(trip.mulai, trip.selesai)}
           </span>
         </div>

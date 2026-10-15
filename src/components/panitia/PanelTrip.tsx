@@ -5,7 +5,7 @@ import Link from "next/link";
 import { muatDataTrip, type DataTrip } from "@/lib/panitia";
 import { pesanError } from "@/lib/supabase";
 import { gayaTema } from "@/lib/tema";
-import { rentangTanggal } from "@/lib/waktu";
+import { labelZona, rentangTanggal } from "@/lib/waktu";
 import { KerangkaPanel } from "../Kerangka";
 import { Ringkasan } from "./Ringkasan";
 import { TabAbsensi } from "./TabAbsensi";
@@ -72,10 +72,12 @@ export function PanelTrip({ id, bisaUbah }: { id: string; bisaUbah: boolean }) {
 
   return (
     <div className={`space-y-4 ${kerangka ? "mode-kerangka" : ""}`} aria-busy={kerangka || undefined} style={gayaTema(tampil.trip.tema)}>
-      <div>
-        <Link href="/panitia" className="text-sm font-semibold text-laut-700">← Semua trip</Link>
-        <h1 className="mt-1 text-2xl font-extrabold">{tampil.trip.nama}</h1>
-        <p className="text-sm text-slate-500">{tampil.trip.tujuan} · {rentangTanggal(tampil.trip.mulai, tampil.trip.selesai)}{!tampil.trip.aktif && " · Ditutup"}</p>
+      <div className="relative overflow-hidden rounded-3xl bg-laut-950 p-5 text-white shadow-lg shadow-laut-950/20">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-mentari-400/20 blur-2xl" aria-hidden />
+        <Link href="/panitia" className="relative text-sm font-semibold text-mentari-400">← Semua trip</Link>
+        <h1 className="relative mt-2 text-2xl font-extrabold leading-tight">{tampil.trip.nama}</h1>
+        <p className="relative mt-1 text-sm text-white/75">{tampil.trip.tujuan} · {rentangTanggal(tampil.trip.mulai, tampil.trip.selesai)}{!tampil.trip.aktif && " · Ditutup"}</p>
+        {tampil.trip.lokasi_nama && <p className="relative mt-3 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">{tampil.trip.lokasi_nama} · {labelZona(tampil.trip.zona)}</p>}
       </div>
 
       <div className="tanpa-scrollbar -mx-4 overflow-x-auto px-4">

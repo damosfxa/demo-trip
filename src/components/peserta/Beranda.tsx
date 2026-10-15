@@ -87,7 +87,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
               { Ikon: IkonKasur, label: t("kamar"), nilai: saya.kamar, warna: "text-karang-600" },
             ].map(({ Ikon, label, nilai, warna }) => (
               <div key={label} className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition active:scale-[0.98]">
-                <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${warna}`}><Ikon className="h-5 w-5" /></span>
+                <span className={`inline-flex h-12 w-12 items-center justify-center ${warna}`}><Ikon className="h-10 w-10" /></span>
                 <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
                 <p className={nilai ? "text-lg font-bold text-laut-950" : "mt-0.5 text-sm font-semibold text-slate-400"}>{nilai ?? t("menungguPanitia")}</p>
               </div>

@@ -1,2 +1,0 @@
-Ikon bus.svg, kamar.svg, dan barang.svg berasal dari Twemoji (https://github.com/jdecked/twemoji).
-Grafik Twemoji dilisensikan CC-BY 4.0. Hak cipta: Twitter, Inc. dan kontributor Twemoji.

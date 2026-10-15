@@ -20,6 +20,17 @@ export async function cariLokasi(q: string): Promise<HasilLokasi[]> {
   }));
 }
 
+/** Foto tempat dengan beberapa tingkat pencarian: nama lengkap dulu, lalu bagian pertamanya (misalnya "Bandung" dari "Kota Bandung, Jawa Barat"). */
+export async function fotoTempatBerjenjang(nama: string): Promise<string | null> {
+  const bagian = nama.split(",")[0].trim();
+  const kandidat = [...new Set([nama.trim(), bagian, bagian.replace(/^(kota|kabupaten|kab\.?)\s+/i, "")])].filter((k) => k.length >= 2);
+  for (const k of kandidat) {
+    const foto = await fotoTempat(k);
+    if (foto) return foto;
+  }
+  return null;
+}
+
 /** Foto asli sebuah tempat dari Unsplash, lewat Edge Function. Null bila tidak ada atau layanan belum diatur. */
 export async function fotoTempat(query: string): Promise<string | null> {
   try {

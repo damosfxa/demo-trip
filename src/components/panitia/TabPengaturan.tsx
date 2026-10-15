@@ -5,9 +5,9 @@ import { pesanError, supabase } from "@/lib/supabase";
 import { TEMA } from "@/lib/tema";
 import type { Isian, Tema, Trip, Zona } from "@/lib/types";
 import { labelZona, opsiZona } from "@/lib/waktu";
-import { cariLokasi, fotoTempat, type HasilLokasi } from "@/lib/lokasi";
+import { cariLokasi, fotoTempatBerjenjang, type HasilLokasi } from "@/lib/lokasi";
 import type { PropsTab } from "./PanelTrip";
-import { Kartu, Label, field, tombol } from "./ui";
+import { Kartu, Label, field, tombol, tombolGaris } from "./ui";
 
 // Daftar diisi satu baris per item supaya mudah untuk panitia (tanpa form bertingkat).
 const baris = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
@@ -133,13 +133,20 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
           <input className={field} value={cariTempat} onChange={(e) => setCariTempat(e.target.value)} placeholder="Misalnya Dieng, Tokyo, atau Mekkah" disabled={d} />
           <button type="button" disabled={d || mencari || cariTempat.trim().length < 2} onClick={async () => { setMencari(true); setHasilCari(await cariLokasi(cariTempat)); setMencari(false); }} className={tombol}>{mencari ? "Mencari..." : "Cari"}</button>
         </div>
+        {f.lokasi_nama && !f.cover_url && (
+          <button type="button" disabled={d} onClick={async () => {
+            const foto = await fotoTempatBerjenjang(f.lokasi_nama);
+            if (foto) setF((x) => ({ ...x, cover_url: foto }));
+            else alert("Foto untuk lokasi ini belum ketemu. Coba pilih nama tempat yang lebih umum.");
+          }} className={`${tombolGaris} w-full`}>Cari foto lagi untuk {f.lokasi_nama}</button>
+        )}
         {hasilCari.length > 0 && (
           <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200">
             {hasilCari.map((h) => (
               <li key={`${h.lat},${h.lon}`}>
                 <button type="button" onClick={async () => {
                   setHasilCari([]);
-                  const foto = await fotoTempat(h.nama);
+                  const foto = await fotoTempatBerjenjang(h.nama);
                   setF((x) => ({ ...x, lokasi_nama: h.nama, lat: String(h.lat), lon: String(h.lon), zona: h.zona, cover_url: foto ?? x.cover_url }));
                 }} className="flex w-full flex-col px-3 py-2 text-left hover:bg-pasir-50">
                   <span className="font-semibold">{h.nama}</span>

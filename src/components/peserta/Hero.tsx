@@ -34,6 +34,11 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
 
   const suasana = suasanaDari(jamDi(trip.zona, sekarang));
   const cuaca = useCuaca(trip.zona, trip.lat, trip.lon);
+  // Seberapa dekat dengan matahari terbit atau terbenam (0 jauh, 1 tepat di waktunya), untuk menghaluskan warna.
+  const jamSekarang = jamPecahan(trip.zona, sekarang);
+  const terbit = cuaca?.terbit ?? 5.5;
+  const terbenam = cuaca?.terbenam ?? 18.5;
+  const senja = Math.max(0, 1 - Math.min(Math.abs(jamSekarang - terbit), Math.abs(jamSekarang - terbenam)) / 1.2);
 
   return (
     <div className={`relative ${tinggi} overflow-hidden bg-laut-900`}>
@@ -46,7 +51,9 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
         )}
       </div>
       {/* Lapisan gelap di bawah supaya teks selalu terbaca */}
-      <div className="absolute inset-x-0 bottom-0 h-3/5 bg-laut-950/55 [mask-image:linear-gradient(to_top,black_40%,transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 h-3/5 bg-laut-950/55 transition-opacity duration-[2000ms] [mask-image:linear-gradient(to_top,black_40%,transparent)]" style={{ opacity: 1 - senja * 0.5 }} />
+      {/* Sentuhan hangat saat fajar dan senja, dibuat lembut dengan mode blend */}
+      <div className="absolute inset-0 transition-opacity duration-[2000ms] mix-blend-soft-light" style={{ opacity: senja * 0.7, background: "linear-gradient(to bottom, rgba(255,190,140,0.6), rgba(240,120,130,0.35) 55%, rgba(60,40,80,0.2))" }} />
       {trip.logo_url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={trip.logo_url} alt={trip.penyelenggara ?? "Logo"} className="absolute left-4 top-4 h-10 max-w-[9rem] rounded-xl bg-white/95 object-contain p-1.5 shadow-sm" />

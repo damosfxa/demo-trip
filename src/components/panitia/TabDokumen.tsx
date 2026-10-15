@@ -61,7 +61,7 @@ export function TabDokumen({ data }: PropsTab) {
         {belum > 0 && <p className="rounded-xl bg-mentari-400/15 px-3 py-2 text-sm text-laut-950">{belum} peserta belum diatur {jenis}. Atur di tab Peserta.</p>}
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => window.print()} className={tombol}>Cetak / simpan PDF</button>
-          <button onClick={ekspor} className={tombolGaris}>Unduh Excel</button>
+          <button onClick={ekspor} className={tombolGaris}>Unduh CSV</button>
         </div>
         <button onClick={() => setKartu((k) => !k)} className={`${tombolGaris} w-full`}>{kartu ? "Kembali ke rooming list / manifest" : "Kartu peserta dengan QR (cetak)"}</button>
       </Kartu>

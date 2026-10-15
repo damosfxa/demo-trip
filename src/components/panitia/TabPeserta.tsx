@@ -149,7 +149,7 @@ export function TabPeserta({ data, bisaUbah, muatUlang }: PropsTab) {
             <option value="">Semua departemen</option>
             {trip.departemen.map((d) => <option key={d}>{d}</option>)}
           </select>
-          <button onClick={ekspor} className={`${tombol} shrink-0 bg-emerald-600 hover:bg-emerald-700`}>Unduh Excel</button>
+          <button onClick={ekspor} className={`${tombol} shrink-0 bg-emerald-600 hover:bg-emerald-700`}>Unduh CSV</button>
         </div>
         {bisaUbah && (
           <div className="flex flex-wrap gap-2">

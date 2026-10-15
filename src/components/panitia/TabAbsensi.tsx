@@ -51,9 +51,9 @@ export function TabAbsensi({ data, bisaUbah, muatUlang }: PropsTab) {
             {trip.titik_absen.map((t) => <option key={t}>{t}</option>)}
           </select>
         </label>
-        <div className="flex items-end justify-between">
-          <p className="text-sm text-slate-500">Hadir di titik ini</p>
-          <p className="text-2xl font-extrabold"><span className="text-emerald-600">{hadir.length}</span><span className="text-slate-300"> / {peserta.length}</span></p>
+        <div className="flex items-center justify-between rounded-2xl bg-laut-900 px-4 py-3 text-white">
+          <p className="text-sm font-semibold text-white/75">Hadir di titik ini</p>
+          <p className="text-3xl font-extrabold tabular-nums">{hadir.length}<span className="text-lg font-semibold text-white/50"> / {peserta.length}</span></p>
         </div>
         {bisaUbah ? (
           <button onClick={() => { setHasil(null); setScan((s) => !s); }} className={`${tombol} w-full py-3`}>

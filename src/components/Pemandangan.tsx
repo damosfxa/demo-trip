@@ -81,8 +81,8 @@ function keadaanLangit(jam: number) {
   const tMalam = batas(((jam - 18.5 + 24) % 24) / 11);
   const bulanTerlihat = batas(jam >= 12 ? (jam - 18.3) / 0.8 : (5.5 - jam) / 0.8);
   return {
-    matahari: { x: 50 + 300 * tSiang, y: 214 - 160 * Math.sin(Math.PI * tSiang), opacity: matahariTerlihat },
-    bulan: { x: 50 + 300 * tMalam, y: 214 - 150 * Math.sin(Math.PI * tMalam), opacity: bulanTerlihat },
+    matahari: { x: 90 + 220 * tSiang, y: 214 - 160 * Math.sin(Math.PI * tSiang), opacity: matahariTerlihat },
+    bulan: { x: 90 + 220 * tMalam, y: 214 - 150 * Math.sin(Math.PI * tMalam), opacity: bulanTerlihat },
   };
 }
 

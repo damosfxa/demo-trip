@@ -104,7 +104,7 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
       </div>
 
       {/* Cap absensi */}
- <div className="mt-5 rounded-3xl p-5 ">
+      <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
         <p className="font-bold text-laut-950">{t("capKehadiran")}</p>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {trip.titik_absen.map((titik, i) => {

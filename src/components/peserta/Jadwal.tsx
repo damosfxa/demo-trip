@@ -64,7 +64,7 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
       <h1 className="text-3xl font-extrabold tracking-tight text-laut-950">{t("jadwalJudul")}</h1>
 
       {!h ? (
- <p className="mt-6 rounded-3xl p-6 text-center text-slate-500">{t("jadwalBelum")}</p>
+        <p className="mt-6 rounded-3xl bg-white p-6 text-center text-slate-500">{t("jadwalBelum")}</p>
       ) : (
         <>
           {/* Pilihan hari, menempel di atas saat digulir */}
@@ -107,7 +107,7 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
                   >
                     {i + 1}
                   </span>
- <div className={`flex-1 rounded-3xl p-4 transition ${sedang ? "ring-2 ring-emerald-400" : ""} ${lewat ? "opacity-55" : ""}`}>
+                  <div className={`flex-1 rounded-3xl bg-white p-4 shadow-sm ring-1 transition ${sedang ? "ring-2 ring-emerald-400" : "ring-black/5"} ${lewat ? "opacity-55" : ""}`}>
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-bold tabular-nums text-laut-700">
                         {jamAcara(a.mulai, a, trip.zona)}

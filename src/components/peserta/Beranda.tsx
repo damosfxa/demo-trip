@@ -64,13 +64,13 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
         {f.jenis === "sebelum" ? (
           <div style={{ "--i": 0 } as React.CSSProperties}><HitungMundur trip={trip} agenda={agenda} /></div>
         ) : (
-          <div style={{ "--i": 0 } as React.CSSProperties} className="p-2 text-center">
+          <div style={{ "--i": 0 } as React.CSSProperties} className="rounded-3xl bg-white p-5 text-center shadow-[0_12px_30px_-12px_rgba(6,42,61,0.35)] ring-1 ring-black/5">
             <p className="text-lg font-bold text-laut-900">{teksFase}</p>
           </div>
         )}
 
         {/* Tindakan cepat */}
-        <div style={{ "--i": 1 } as React.CSSProperties} className="grid grid-cols-3 gap-2 p-1">
+        <div style={{ "--i": 1 } as React.CSSProperties} className="grid grid-cols-3 gap-2 rounded-3xl bg-white p-3 shadow-sm ring-1 ring-black/5">
           <AksiCepat label={t("aksiKartu")} onClick={keKartu} Ikon={IkonKartu} />
           <AksiCepat label={t("aksiJadwal")} onClick={keJadwal} Ikon={IkonKalender} />
           <AksiCepat label={t("aksiInfo")} onClick={keInfo} Ikon={IkonInfo} />
@@ -86,7 +86,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
               { Ikon: IkonBus, label: t("bus"), nilai: saya.bus, warna: "text-laut-700" },
               { Ikon: IkonKasur, label: t("kamar"), nilai: saya.kamar, warna: "text-karang-600" },
             ].map(({ Ikon, label, nilai, warna }) => (
-              <div key={label} className="p-4 transition active:scale-[0.98]">
+              <div key={label} className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition active:scale-[0.98]">
                 <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl ${warna}`}><Ikon className="h-5 w-5" /></span>
                 <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
                 <p className={nilai ? "text-lg font-bold text-laut-950" : "mt-0.5 text-sm font-semibold text-slate-400"}>{nilai ?? t("menungguPanitia")}</p>
@@ -97,7 +97,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
 
         {/* Sedang berlangsung dan agenda berikutnya */}
         {(sedang || berikut) && (
-          <button onClick={keJadwal} style={{ "--i": 3 } as React.CSSProperties} className="block w-full space-y-3 p-2 text-left transition active:scale-[0.99]">
+          <button onClick={keJadwal} style={{ "--i": 3 } as React.CSSProperties} className="block w-full space-y-3 rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-black/5 transition active:scale-[0.99]">
             {sedang && (
               <div className="flex gap-3">
                 <span className="anim-denyut mt-1 h-3 w-3 shrink-0 rounded-full bg-emerald-500" />
@@ -128,7 +128,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
         {notifikasi}
 
         {/* Pengumuman */}
-        <div style={{ "--i": 4 } as React.CSSProperties} className="p-2">
+        <div style={{ "--i": 4 } as React.CSSProperties} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
           <p className="mb-3 flex items-center gap-2 font-bold text-laut-950">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-karang-500/15 text-karang-600"><IkonToa className="h-4 w-4" /></span>
             {t("pengumuman")}

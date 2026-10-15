@@ -4,7 +4,8 @@ import { useState } from "react";
 import { pesanError, supabase } from "@/lib/supabase";
 import { TEMA } from "@/lib/tema";
 import type { Isian, Tema, Trip, Zona } from "@/lib/types";
-import { LABEL_ZONA } from "@/lib/waktu";
+import { labelZona, opsiZona } from "@/lib/waktu";
+import { cariLokasi, fotoTempat, type HasilLokasi } from "@/lib/lokasi";
 import type { PropsTab } from "./PanelTrip";
 import { Kartu, Label, field, tombol } from "./ui";
 
@@ -54,6 +55,9 @@ function keForm(t: Trip) {
     aktif: t.aktif,
     kapasitas_bus: String(t.kapasitas_bus ?? 40),
     kapasitas_kamar: String(t.kapasitas_kamar ?? 2),
+    lokasi_nama: t.lokasi_nama ?? "",
+    lat: t.lat != null ? String(t.lat) : "",
+    lon: t.lon != null ? String(t.lon) : "",
   };
 }
 
@@ -61,6 +65,9 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
   const [f, setF] = useState(() => keForm(data.trip));
   const [proses, setProses] = useState(false);
   const [tersimpan, setTersimpan] = useState(false);
+  const [cariTempat, setCariTempat] = useState("");
+  const [hasilCari, setHasilCari] = useState<HasilLokasi[]>([]);
+  const [mencari, setMencari] = useState(false);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 
   const simpan = async (e: React.FormEvent) => {
@@ -101,6 +108,9 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
           return { q: q.trim(), a: a.join("|").trim() };
         }).filter((x) => x.q && x.a),
         aktif: f.aktif,
+        lokasi_nama: f.lokasi_nama.trim() || null,
+        lat: f.lat.trim() ? Number(f.lat) : null,
+        lon: f.lon.trim() ? Number(f.lon) : null,
         kapasitas_bus: kapBus,
         kapasitas_kamar: kapKamar,
       })
@@ -116,6 +126,31 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
   return (
     <form onSubmit={simpan} className="space-y-3">
       <Kartu className="space-y-3">
+        <p className="font-bold">Lokasi trip</p>
+        <p className="text-sm text-slate-500">Cari nama tempat di seluruh dunia. Zona waktu, cuaca, dan jam matahari terbit serta terbenam mengikuti tempat itu. Foto sampul diambil otomatis, dan bisa diganti dengan foto sendiri di bawahnya.</p>
+        {f.lokasi_nama && <p className="rounded-xl bg-laut-50 px-3 py-2 text-sm font-semibold text-laut-900">Dipilih: {f.lokasi_nama} · {f.zona}</p>}
+        <div className="flex gap-2">
+          <input className={field} value={cariTempat} onChange={(e) => setCariTempat(e.target.value)} placeholder="Misalnya Dieng, Tokyo, atau Mekkah" disabled={d} />
+          <button type="button" disabled={d || mencari || cariTempat.trim().length < 2} onClick={async () => { setMencari(true); setHasilCari(await cariLokasi(cariTempat)); setMencari(false); }} className={tombol}>{mencari ? "Mencari..." : "Cari"}</button>
+        </div>
+        {hasilCari.length > 0 && (
+          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200">
+            {hasilCari.map((h) => (
+              <li key={`${h.lat},${h.lon}`}>
+                <button type="button" onClick={async () => {
+                  setHasilCari([]);
+                  const foto = await fotoTempat(h.nama);
+                  setF((x) => ({ ...x, lokasi_nama: h.nama, lat: String(h.lat), lon: String(h.lon), zona: h.zona, cover_url: foto ?? x.cover_url }));
+                }} className="flex w-full flex-col px-3 py-2 text-left hover:bg-pasir-50">
+                  <span className="font-semibold">{h.nama}</span>
+                  <span className="text-xs text-slate-500">{h.negara} · {h.zona}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Kartu>
+      <Kartu className="space-y-3">
         <p className="font-bold">Acara</p>
         <Label teks="Nama acara"><input className={field} value={f.nama} onChange={set("nama")} disabled={d} /></Label>
         <Label teks="Penyelenggara"><input className={field} value={f.penyelenggara} onChange={set("penyelenggara")} disabled={d} /></Label>
@@ -126,7 +161,7 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
         </div>
         <Label teks="Zona waktu lokasi">
           <select className={field} value={f.zona} onChange={(e) => setF({ ...f, zona: e.target.value as Zona })} disabled={d}>
-            {(Object.keys(LABEL_ZONA) as Zona[]).map((z) => <option key={z} value={z}>{LABEL_ZONA[z]}</option>)}
+            {opsiZona(f.zona).map((z) => <option key={z} value={z}>{labelZona(z)}</option>)}
           </select>
         </Label>
         <Label teks="Foto sampul (opsional)" catatan="Link gambar yang diawali https://. Kosongkan untuk memakai ilustrasi pemandangan bergerak."><input className={field} value={f.cover_url} onChange={set("cover_url")} placeholder="https://..." disabled={d} /></Label>

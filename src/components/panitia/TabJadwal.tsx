@@ -4,7 +4,7 @@ import { useState } from "react";
 import { jamAcara, perHari, zonaAcara } from "@/lib/agenda";
 import { pesanError, supabase } from "@/lib/supabase";
 import type { Agenda, Zona } from "@/lib/types";
-import { keIso, LABEL_ZONA, pecahIso, tanggalPanjang } from "@/lib/waktu";
+import { keIso, labelZona, opsiZona, pecahIso, tanggalPanjang } from "@/lib/waktu";
 import type { PropsTab } from "./PanelTrip";
 import { Kartu, Label, field, tombol, tombolGaris } from "./ui";
 
@@ -16,7 +16,7 @@ export function TabJadwal({ data, bisaUbah, muatUlang }: PropsTab) {
   const [form, setForm] = useState<Form | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [proses, setProses] = useState(false);
-  const z = form ? LABEL_ZONA[form.zona] : "";
+  const z = form ? labelZona(form.zona) : "";
 
   const ubah = (a: Agenda) => {
     const zona = zonaAcara(a, trip.zona);
@@ -64,7 +64,7 @@ export function TabJadwal({ data, bisaUbah, muatUlang }: PropsTab) {
             <Label teks="Tanggal"><input type="date" className={field} value={form.tanggal} min={trip.mulai} max={trip.selesai} onChange={(e) => setForm({ ...form, tanggal: e.target.value })} /></Label>
             <Label teks="Zona waktu acara" catatan="Ubah bila acara ini di kota dengan zona berbeda, misalnya berangkat dari Jakarta ke Bali.">
               <select className={field} value={form.zona} onChange={(e) => setForm({ ...form, zona: e.target.value as Zona })}>
-                {(Object.keys(LABEL_ZONA) as Zona[]).map((x) => <option key={x} value={x}>{LABEL_ZONA[x]}</option>)}
+                {opsiZona(form.zona).map((x) => <option key={x} value={x}>{labelZona(x)}</option>)}
               </select>
             </Label>
             <div className="grid grid-cols-2 gap-3">

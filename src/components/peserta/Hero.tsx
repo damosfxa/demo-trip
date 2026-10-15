@@ -33,7 +33,7 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
   }, []);
 
   const suasana = suasanaDari(jamDi(trip.zona, sekarang));
-  const cuaca = useCuaca(trip.zona);
+  const cuaca = useCuaca(trip.zona, trip.lat, trip.lon);
 
   return (
     <div className={`relative ${tinggi} overflow-hidden bg-laut-900`}>

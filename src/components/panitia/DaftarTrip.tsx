@@ -5,7 +5,7 @@ import Link from "next/link";
 import { slugDari } from "@/lib/panitia";
 import { pesanError, supabase } from "@/lib/supabase";
 import type { Trip, Zona } from "@/lib/types";
-import { LABEL_ZONA, rentangTanggal } from "@/lib/waktu";
+import { labelZona, opsiZona, rentangTanggal } from "@/lib/waktu";
 import { KerangkaDaftarTrip } from "../Kerangka";
 import { TimPanitia } from "./TimPanitia";
 import { Kartu, Label, field, tombol, tombolGaris } from "./ui";
@@ -174,7 +174,7 @@ function FormTripBaru({ onBatal, onSelesai }: { onBatal: () => void; onSelesai: 
         </div>
         <Label teks="Zona waktu lokasi">
           <select className={field} value={zona} onChange={(e) => setZona(e.target.value as Zona)}>
-            {(Object.keys(LABEL_ZONA) as Zona[]).map((z) => <option key={z} value={z}>{LABEL_ZONA[z]}</option>)}
+            {opsiZona(zona).map((z) => <option key={z} value={z}>{labelZona(z)}</option>)}
           </select>
         </Label>
         <div className="flex gap-2 pt-1">

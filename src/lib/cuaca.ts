@@ -15,14 +15,10 @@ export type Cuaca = {
   terbenam: number;
 };
 
-const KOTA: Record<Zona, { lat: number; lon: number }> = {
-  "Asia/Makassar": { lat: -8.65, lon: 115.22 },
-  "Asia/Jakarta": { lat: -6.2, lon: 106.85 },
-  "Asia/Jayapura": { lat: -2.53, lon: 140.72 },
-};
+const KOTA_CADANGAN = { lat: -6.2, lon: 106.85 }; // Jakarta, bila lokasi trip belum diisi panitia
 
 const TTL = 30 * 60 * 1000;
-const cache = new Map<Zona, { waktu: number; data: Cuaca }>();
+const cache = new Map<string, { waktu: number; data: Cuaca }>();
 const pendengar = new Set<() => void>();
 let versi = 0;
 const langganan = (f: () => void) => {
@@ -36,8 +32,8 @@ const jamDesimal = (iso: string, zona: Zona) => {
   return Number(bagian.find((b) => b.type === "hour")?.value ?? 0) + Number(bagian.find((b) => b.type === "minute")?.value ?? 0) / 60;
 };
 
-async function ambil(zona: Zona) {
-  const { lat, lon } = KOTA[zona];
+async function ambil(zona: Zona, lat: number, lon: number) {
+  const kunci = `${lat},${lon}`;
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,cloud_cover&daily=sunrise,sunset&timezone=${encodeURIComponent(zona)}&forecast_days=1`;
   try {
     const res = await fetch(url);
@@ -50,7 +46,7 @@ async function ambil(zona: Zona) {
       terbit: jamDesimal(j.daily.sunrise[0], zona),
       terbenam: jamDesimal(j.daily.sunset[0], zona),
     };
-    cache.set(zona, { waktu: Date.now(), data });
+    cache.set(kunci, { waktu: Date.now(), data });
     versi++;
     pendengar.forEach((f) => f());
   } catch {
@@ -59,15 +55,18 @@ async function ambil(zona: Zona) {
 }
 
 /** Cuaca untuk zona trip. Null bila belum terambil atau tidak tersambung. */
-export function useCuaca(zona: Zona): Cuaca | null {
+export function useCuaca(zona: Zona, lat?: number | null, lon?: number | null): Cuaca | null {
   useSyncExternalStore(langganan, ambilVersi, () => 0);
+  const titik = { lat: lat ?? KOTA_CADANGAN.lat, lon: lon ?? KOTA_CADANGAN.lon };
+  const kunci = `${titik.lat},${titik.lon}`;
   useEffect(() => {
-    const ada = cache.get(zona);
-    if (!ada || Date.now() - ada.waktu > TTL) ambil(zona);
-    const t = setInterval(() => ambil(zona), TTL);
+    const ada = cache.get(kunci);
+    if (!ada || Date.now() - ada.waktu > TTL) ambil(zona, titik.lat, titik.lon);
+    const t = setInterval(() => ambil(zona, titik.lat, titik.lon), TTL);
     return () => clearInterval(t);
-  }, [zona]);
-  return cache.get(zona)?.data ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zona, kunci]);
+  return cache.get(kunci)?.data ?? null;
 }
 
 /** Teks singkat dari kode cuaca WMO. */

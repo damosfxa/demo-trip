@@ -1,11 +1,11 @@
 import type { Agenda, Zona } from "./types";
-import { jam, kunciHari, LABEL_ZONA } from "./waktu";
+import { jam, kunciHari, labelZona } from "./waktu";
 
 /** Zona waktu sebuah acara: miliknya sendiri, atau ikut zona trip. */
 export const zonaAcara = (a: Agenda, zonaTrip: Zona): Zona => a.zona ?? zonaTrip;
 
 /** Jam acara lengkap dengan label zonanya, misalnya "05.00 WIB". */
-export const jamAcara = (iso: string, a: Agenda, zonaTrip: Zona) => `${jam(iso, zonaAcara(a, zonaTrip))} ${LABEL_ZONA[zonaAcara(a, zonaTrip)]}`;
+export const jamAcara = (iso: string, a: Agenda, zonaTrip: Zona) => `${jam(iso, zonaAcara(a, zonaTrip))} ${labelZona(zonaAcara(a, zonaTrip))}`;
 
 /** Selesai sebuah agenda: kolom selesai, atau awal agenda berikutnya, atau 1 jam setelah mulai. */
 export function akhir(list: Agenda[], i: number) {

@@ -1,4 +1,5 @@
-export type Zona = "Asia/Jakarta" | "Asia/Makassar" | "Asia/Jayapura";
+/** Zona waktu IANA, misalnya "Asia/Jakarta" atau "Asia/Tokyo". */
+export type Zona = string;
 
 export type Trip = {
   id: string;
@@ -9,6 +10,9 @@ export type Trip = {
   mulai: string;
   selesai: string;
   zona: Zona;
+  lokasi_nama?: string | null;
+  lat?: number | null;
+  lon?: number | null;
   titik_kumpul: string | null;
   cover_url: string | null;
   maps_url: string | null;

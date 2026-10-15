@@ -8,6 +8,7 @@ import { relatif, rentangTanggal, tanggalPanjang, waLink } from "@/lib/waktu";
 import { IkonBagi, IkonBus, IkonInfo, IkonJam, IkonKalender, IkonKartu, IkonKasur, IkonLokasi, IkonPanah, IkonToa, IkonWa } from "../Ikon";
 import { pisahDarurat } from "@/lib/darurat";
 import { kamus, useBahasa } from "@/lib/bahasa";
+import { useTerjemahan } from "@/lib/terjemah";
 import { Hero } from "./Hero";
 import { HitungMundur } from "./HitungMundur";
 import { PasangAplikasi } from "./PasangAplikasi";
@@ -31,7 +32,12 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
   ].sort((a, b) => b.created_at.localeCompare(a.created_at));
   const f = fase(trip.mulai, trip.selesai, trip.zona, sekarang);
   const { sedang, berikut } = statusAgenda(agenda, sekarang);
-  const t = kamus(useBahasa());
+  const bahasa = useBahasa();
+  const t = kamus(bahasa);
+  const tr = useTerjemahan(
+    [...pengumuman.map((p) => pisahDarurat(p.isi).isi), sedang?.judul ?? "", berikut?.judul ?? "", sedang?.lokasi ?? "", berikut?.lokasi ?? ""],
+    bahasa === "en",
+  );
   const nama = saya?.nama.split(" ")[0] ?? t("peserta");
   const teksFase =
     f.jenis === "sebelum" ? (f.angka === 1 ? t("berangkatBesok") : t("berangkatHari", { n: f.angka })) : f.jenis === "berlangsung" ? t("hariKe", { n: f.angka }) : t("selesaiTrip");
@@ -97,7 +103,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
                 <span className="anim-denyut mt-1 h-3 w-3 shrink-0 rounded-full bg-emerald-500" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">{t("sedangBerlangsung")}</p>
-                  <p className="text-lg font-bold text-laut-950">{sedang.judul}</p>
+                  <p className="text-lg font-bold text-laut-950">{tr(sedang.judul)}</p>
                   <p className="flex flex-wrap items-center gap-1 text-sm text-slate-500"><IkonJam className="h-4 w-4" /> {jamAcara(sedang.mulai, sedang, trip.zona)}{sedang.lokasi && <><span>·</span><IkonLokasi className="h-4 w-4" /> {sedang.lokasi}</>}</p>
                 </div>
               </div>
@@ -110,7 +116,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-laut-600">{t("agendaBerikut")}</p>
-                  <p className="truncate text-base font-bold text-laut-950">{berikut.judul}</p>
+                  <p className="truncate text-base font-bold text-laut-950">{tr(berikut.judul)}</p>
                   <p className="truncate text-sm text-slate-500">{jamAcara(berikut.mulai, berikut, trip.zona)}{berikut.lokasi ? ` · ${berikut.lokasi}` : ""}</p>
                 </div>
                 <IkonPanah className="h-5 w-5 shrink-0 text-slate-300" />
@@ -141,7 +147,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
                       {relatif(p.created_at)}
                       {baru && <span className="rounded-full bg-karang-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{t("baru")}</span>}
                     </p>
-                    <p className="mt-1 whitespace-pre-line text-[15px] leading-relaxed text-slate-800">{pisahDarurat(p.isi).isi}</p>
+                    <p className="mt-1 whitespace-pre-line text-[15px] leading-relaxed text-slate-800">{tr(pisahDarurat(p.isi).isi)}</p>
                   </li>
                 );
               })}

@@ -7,6 +7,7 @@ import { tulis, useSimpan } from "@/lib/simpan";
 import type { Trip } from "@/lib/types";
 import { waLink } from "@/lib/waktu";
 import { gantiBahasa, kamus, useBahasa } from "@/lib/bahasa";
+import { useTerjemahan } from "@/lib/terjemah";
 import { IkonCentang, IkonInfo, IkonKoper, IkonLokasi, IkonPanah, IkonSalin, IkonTanya, IkonTelp, IkonWa } from "../Ikon";
 
 function Cincin({ nilai, total }: { nilai: number; total: number }) {
@@ -100,6 +101,7 @@ function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: str
 export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGelap }: { trip: Trip; nama: string; token?: string; isianSaya?: Record<string, string>; onSegarkan?: () => void; gelap?: boolean; onGelap?: () => void }) {
   const bahasa = useBahasa();
   const t = kamus(bahasa);
+  const tr = useTerjemahan([...trip.info.flatMap((i) => [i.judul, i.isi]), ...trip.checklist, ...trip.faq.flatMap((f) => [f.q, f.a])], bahasa === "en");
   const cek = useSimpan<number[]>(kunciCek(trip.slug)) ?? [];
   const [baruDicentang, setBaruDicentang] = useState<number | null>(null);
   const [cari, setCari] = useState("");
@@ -202,10 +204,10 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
             {infoTampil.map((i) => (
               <div key={i.judul} className="rounded-2xl bg-pasir-50 p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-bold text-laut-800">{i.judul}</p>
+                  <p className="text-sm font-bold text-laut-800">{tr(i.judul)}</p>
                   <TombolSalin teks={i.isi} />
                 </div>
-                <p className="mt-1 text-[15px] leading-relaxed text-slate-700">{i.isi}</p>
+                <p className="mt-1 text-[15px] leading-relaxed text-slate-700">{tr(i.isi)}</p>
               </div>
             ))}
           </div>
@@ -237,7 +239,7 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
                     <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border-2 transition ${ok ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300"}`}>
                       {ok && <IkonCentang className={`h-4 w-4 ${baruDicentang === i ? "anim-pop" : ""}`} />}
                     </span>
-                    <span className={`transition ${ok ? "text-slate-400 line-through" : "text-slate-800"}`}>{c}</span>
+                    <span className={`transition ${ok ? "text-slate-400 line-through" : "text-slate-800"}`}>{tr(c)}</span>
                   </button>
                 </li>
               );
@@ -256,10 +258,10 @@ export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGe
           {faqTampil.map((f) => (
             <details key={f.q} open={!!q} className="group border-b border-slate-100 last:border-0">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3.5 font-semibold text-slate-800">
-                {f.q}
+                {tr(f.q)}
                 <IkonPanah className="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-90" />
               </summary>
-              <p className="anim-pudar pb-4 text-[15px] leading-relaxed text-slate-600">{f.a}</p>
+              <p className="anim-pudar pb-4 text-[15px] leading-relaxed text-slate-600">{tr(f.a)}</p>
             </details>
           ))}
         </div>

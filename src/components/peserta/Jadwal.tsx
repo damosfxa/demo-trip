@@ -6,6 +6,7 @@ import type { Agenda, Trip } from "@/lib/types";
 import { kunciHari, tanggalPanjang } from "@/lib/waktu";
 import { IkonKalender, IkonLokasi } from "../Ikon";
 import { kamus, lokal, useBahasa } from "@/lib/bahasa";
+import { useTerjemahan } from "@/lib/terjemah";
 
 // Format iCalendar (UTC, tanpa milidetik).
 const stempel = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -37,7 +38,9 @@ function unduhIcs(a: Agenda, selesai: number, trip: Trip) {
 }
 
 export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[]; sekarang: number }) {
-  const t = kamus(useBahasa());
+  const bahasa = useBahasa();
+  const t = kamus(bahasa);
+  const tr = useTerjemahan(agenda.flatMap((a) => [a.judul, a.lokasi ?? "", a.ket ?? ""]), bahasa === "en");
   const hari = perHari(agenda, trip.zona);
   const hariIni = sekarang ? kunciHari(new Date(sekarang).toISOString(), trip.zona) : "";
   const awal = Math.max(0, hari.findIndex((h) => h.hari === hariIni));
@@ -102,9 +105,9 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
                       </p>
                       {sedang && <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">{t("sekarang")}</span>}
                     </div>
-                    <p className="mt-0.5 text-[17px] font-bold text-laut-950">{a.judul}</p>
-                    {a.lokasi && <p className="mt-1 flex items-center gap-1 text-sm text-slate-500"><IkonLokasi className="h-4 w-4 shrink-0" /> {a.lokasi}</p>}
-                    {a.ket && <p className="mt-1 text-sm leading-relaxed text-slate-600">{a.ket}</p>}
+                    <p className="mt-0.5 text-[17px] font-bold text-laut-950">{tr(a.judul)}</p>
+                    {a.lokasi && <p className="mt-1 flex items-center gap-1 text-sm text-slate-500"><IkonLokasi className="h-4 w-4 shrink-0" /> {tr(a.lokasi ?? "")}</p>}
+                    {a.ket && <p className="mt-1 text-sm leading-relaxed text-slate-600">{tr(a.ket ?? "")}</p>}
                     <button onClick={() => unduhIcs(a, akhir(agenda, pos), trip)} className="mt-3 flex items-center gap-1.5 rounded-xl bg-laut-50 px-3 py-1.5 text-xs font-bold text-laut-800 transition active:scale-95">
                       <IkonKalender className="h-3.5 w-3.5" /> {t("tambahKalender")}
                     </button>

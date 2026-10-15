@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { Trip } from "@/lib/types";
 import { Pemandangan, jamPecahan, suasanaDari } from "../Pemandangan";
 import { teksCuaca, useCuaca } from "@/lib/cuaca";
+import { useLatar } from "@/lib/lokasi";
 
 /** Jam (0-23) di zona waktu trip, untuk memilih suasana siang, senja, atau malam. */
 function jamDi(zona: string, waktu: number) {
@@ -34,6 +35,8 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
 
   const suasana = suasanaDari(jamDi(trip.zona, sekarang));
   const cuaca = useCuaca(trip.zona, trip.lat, trip.lon);
+  // Tanpa foto sampul, latar gunung diambil dari foto asli lokasi trip.
+  const fotoGunung = useLatar(trip.cover_url ? null : trip.lokasi_nama ? `${trip.lokasi_nama} mountains` : "mountain landscape");
   // Seberapa dekat dengan matahari terbit atau terbenam (0 jauh, 1 tepat di waktunya), untuk menghaluskan warna.
   const jamSekarang = jamPecahan(trip.zona, sekarang);
   const terbit = cuaca?.terbit ?? 5.5;
@@ -47,7 +50,7 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
           // eslint-disable-next-line @next/next/no-img-element
           <img src={trip.cover_url} alt="" className="anim-zoom h-full w-full object-cover" />
         ) : (
-          <Pemandangan suasana={suasana} jam={jamPecahan(trip.zona, sekarang)} cuaca={cuaca} className="h-full w-full" />
+          <Pemandangan suasana={suasana} jam={jamPecahan(trip.zona, sekarang)} cuaca={cuaca} latar={fotoGunung} className="h-full w-full" />
         )}
       </div>
       {/* Lapisan gelap di bawah supaya teks selalu terbaca */}

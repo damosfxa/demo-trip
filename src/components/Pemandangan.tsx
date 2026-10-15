@@ -84,7 +84,7 @@ function keadaanLangit(jam: number, terbit: number, terbenam: number) {
   };
 }
 
-export function Pemandangan({ jam, cuaca, className = "" }: { suasana?: Suasana; jam?: number; cuaca?: { terbit: number; terbenam: number; awan: number; kode: number } | null; className?: string }) {
+export function Pemandangan({ jam, cuaca, latar, className = "" }: { suasana?: Suasana; jam?: number; cuaca?: { terbit: number; terbenam: number; awan: number; kode: number } | null; latar?: string | null; className?: string }) {
   // Tanpa jam dari pemanggil, pakai jam sekarang (zona Indonesia), diperbarui tiap menit.
   const waktu = useSekarang();
   const sekarang = jam ?? (waktu ? jamPecahan("Asia/Jakarta", waktu) : 12);
@@ -145,9 +145,25 @@ export function Pemandangan({ jam, cuaca, className = "" }: { suasana?: Suasana;
         </g>
       </g>
 
-      {/* Gunung */}
-      <path d="M0 175 L60 120 L110 160 L170 105 L240 165 L300 125 L400 172 V260 H0 Z" fill={w.gunungJauh} />
-      <path d="M0 190 L50 150 L95 182 L150 140 L210 188 L270 158 L330 186 L400 160 V260 H0 Z" fill={w.gunung} />
+      {/* Gunung: foto asli bila ada, selain itu gambar gunung sederhana */}
+      {latar ? (
+        <>
+          <defs>
+            <linearGradient id="pudar-gunung" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor={w.gunung} stopOpacity="0" />
+              <stop offset="0.7" stopColor={w.gunung} stopOpacity="0.85" />
+              <stop offset="1" stopColor={w.gunung} stopOpacity="1" />
+            </linearGradient>
+          </defs>
+          <image href={latar} x="0" y="70" width="400" height="140" preserveAspectRatio="xMidYMid slice" />
+          <rect x="0" y="70" width="400" height="140" fill="url(#pudar-gunung)" />
+        </>
+      ) : (
+        <>
+          <path d="M0 175 L60 120 L110 160 L170 105 L240 165 L300 125 L400 172 V260 H0 Z" fill={w.gunungJauh} />
+          <path d="M0 190 L50 150 L95 182 L150 140 L210 188 L270 158 L330 186 L400 160 V260 H0 Z" fill={w.gunung} />
+        </>
+      )}
 
       {/* Pulau dengan gapura (candi bentar) dan pohon kelapa */}
       <g fill={w.pulau}>

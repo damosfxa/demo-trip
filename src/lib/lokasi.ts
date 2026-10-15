@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useSyncExternalStore } from "react";
 import { supabase } from "./supabase";
 
 export type HasilLokasi = { nama: string; lat: number; lon: number; zona: string; negara: string };
@@ -28,4 +29,51 @@ export async function fotoTempat(query: string): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+const latarMemo = new Map<string, string | null>();
+const latarPendengar = new Set<() => void>();
+let latarVersi = 0;
+
+/**
+ * Foto gunung asli untuk latar pemandangan, diambil dari Unsplash sesuai kata kunci.
+ * Hasilnya disimpan di HP ini supaya tidak diminta ulang setiap kali halaman dibuka.
+ */
+export function useLatar(query: string | null): string | null {
+  useSyncExternalStore(
+    (f) => {
+      latarPendengar.add(f);
+      return () => latarPendengar.delete(f);
+    },
+    () => latarVersi,
+    () => 0,
+  );
+  useEffect(() => {
+    if (!query || latarMemo.has(query)) return;
+    const kunci = `infotrip:latar:${query}`;
+    try {
+      const simpanan = localStorage.getItem(kunci);
+      if (simpanan) {
+        latarMemo.set(query, simpanan);
+        latarVersi++;
+        latarPendengar.forEach((f) => f());
+        return;
+      }
+    } catch {
+      // Penyimpanan HP tidak tersedia: tetap ambil dari layanan.
+    }
+    fotoTempat(query).then((url) => {
+      latarMemo.set(query, url);
+      if (url) {
+        try {
+          localStorage.setItem(kunci, url);
+        } catch {
+          // Tidak apa-apa, hanya tidak tersimpan.
+        }
+      }
+      latarVersi++;
+      latarPendengar.forEach((f) => f());
+    });
+  }, [query]);
+  return query ? latarMemo.get(query) ?? null : null;
 }

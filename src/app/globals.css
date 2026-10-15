@@ -162,6 +162,9 @@ body {
 .pesawat { animation: pesawat 9s ease-in-out infinite; }
 .sinar { transform-box: fill-box; transform-origin: center; animation: sinar 4s ease-in-out infinite; }
 
+/* Panel panitia: lebar layar dilonggarkan, tampilan peserta tetap selebar HP */
+main:has(> .panel-lebar) { max-width: 64rem; }
+
 /* Sembunyikan scrollbar baris tab yang bisa digeser */
 .tanpa-scrollbar { scrollbar-width: none; }
 .tanpa-scrollbar::-webkit-scrollbar { display: none; }

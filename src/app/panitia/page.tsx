@@ -28,10 +28,16 @@ function Isi() {
   const bisaUbah = peran === "owner";
   return (
     <div className="space-y-4 px-4 pb-16 pt-5">
-      <div className="flex items-center justify-between text-sm">
-        <span className="truncate text-slate-500">{sesi.user.email}</span>
-        <button onClick={() => supabase.auth.signOut()} className="shrink-0 font-semibold text-slate-500">Keluar</button>
-      </div>
+      <header className="-mx-4 flex items-center justify-between gap-3 bg-laut-950 px-5 py-4 text-white sm:rounded-b-3xl">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-mentari-400">Info Trip</p>
+          <p className="text-lg font-extrabold">Panel panitia</p>
+        </div>
+        <div className="flex min-w-0 items-center gap-3 text-sm">
+          <span className="truncate text-white/70">{sesi.user.email}</span>
+          <button onClick={() => supabase.auth.signOut()} className="shrink-0 rounded-xl bg-white/10 px-3 py-1.5 font-semibold text-white">Keluar</button>
+        </div>
+      </header>
       {!bisaUbah && (
         <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
           Akun demo: bisa melihat semua fitur panitia, tapi tidak bisa mengubah data.
@@ -42,10 +48,13 @@ function Isi() {
   );
 }
 
+// Panel panitia memakai lebar layar yang lebih lebar daripada tampilan HP peserta (lihat .panel-lebar di globals.css).
 export default function HalamanPanitia() {
   return (
-    <Suspense fallback={null}>
-      <Isi />
-    </Suspense>
+    <div className="panel-lebar min-h-dvh bg-slate-100">
+      <Suspense fallback={null}>
+        <Isi />
+      </Suspense>
+    </div>
   );
 }

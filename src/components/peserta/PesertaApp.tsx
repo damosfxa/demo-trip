@@ -160,7 +160,7 @@ export function PesertaApp({ slug }: { slug: string }) {
   };
 
   return (
-    <div className={`anim-pudar ${gelap ? "mode-gelap" : ""}`} style={gayaTema(paket.trip.tema)}>
+    <div className={`anim-pudar ${gelap ? "mode-gelap min-h-dvh" : ""}`} style={gayaTema(paket.trip.tema)}>
       <Tampilan
         gelap={gelap}
         onGelap={() => tulis(KUNCI_GELAP, !gelap)}

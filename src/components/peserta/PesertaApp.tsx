@@ -7,9 +7,8 @@ import { useSekarang } from "@/lib/jam";
 import { baca, tulis, useSimpan } from "@/lib/simpan";
 import { gayaTema } from "@/lib/tema";
 import type { DataSaya } from "@/lib/types";
-import { IkonInfo, IkonKalender, IkonKartu, IkonLokasi, IkonRumah, IkonSegar, IkonSinyal } from "../Ikon";
+import { IkonInfo, IkonKalender, IkonKartu, IkonLokasi, IkonRumah, IkonSinyal } from "../Ikon";
 import { pisahDarurat } from "@/lib/darurat";
-import { perbaruiAplikasi } from "@/lib/pembaruan";
 import { Beranda } from "./Beranda";
 import { InfoTrip } from "./InfoTrip";
 import { Jadwal } from "./Jadwal";
@@ -39,7 +38,6 @@ export function PesertaApp({ slug }: { slug: string }) {
   const [tab, setTab] = useState<Tab>("beranda");
   const [sudahPindah, setSudahPindah] = useState(false);
   const [muat, setMuat] = useState(0);
-  const [memperbarui, setMemperbarui] = useState(false);
   const [kabar, setKabar] = useState<Kabar | null>(null);
   // Mode malam disimpan di HP ini saja.
   const gelap = useSimpan<boolean>(KUNCI_GELAP) === true;
@@ -52,7 +50,6 @@ export function PesertaApp({ slug }: { slug: string }) {
       setPaket(r.data);
       setOffline(r.offline);
       setError(r.error);
-      setMemperbarui(false);
     });
     return () => {
       aktif = false;
@@ -145,12 +142,8 @@ export function PesertaApp({ slug }: { slug: string }) {
         offline={offline}
         token={token}
         animasi={sudahPindah}
-        memperbarui={memperbarui}
         onPindah={pindah}
-        onSegarkan={() => {
-          setMemperbarui(true);
-          segarkan();
-        }}
+        onSegarkan={segarkan}
         onKeluar={() => keluar(slug)}
         notifikasi={<NyalakanNotifikasi token={token} />}
       />
@@ -166,7 +159,6 @@ type PropsTampilan = {
   tab: Tab;
   offline?: boolean;
   animasi?: boolean;
-  memperbarui?: boolean;
   onPindah?: (t: Tab) => void;
   onSegarkan?: () => void;
   token?: string;
@@ -177,7 +169,7 @@ type PropsTampilan = {
 };
 
 /** Tampilan aplikasi peserta. Dipakai untuk isi asli maupun skeleton (tanpa aksi). */
-function Tampilan({ paket, saya, sekarang, tab, offline, animasi, memperbarui, onPindah = () => {}, onSegarkan, onKeluar, notifikasi, token, gelap, onGelap }: PropsTampilan) {
+function Tampilan({ paket, saya, sekarang, tab, offline, animasi, onPindah = () => {}, onSegarkan, onKeluar, notifikasi, token, gelap, onGelap }: PropsTampilan) {
   const posisi = TABS.findIndex((t) => t.id === tab);
   // Pengumuman darurat terbaru tampil sebagai banner di atas, sampai panitia menggantinya.
   const darurat = paket.pengumuman
@@ -214,12 +206,6 @@ function Tampilan({ paket, saya, sekarang, tab, offline, animasi, memperbarui, o
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-2 px-4 text-sm">
-        <button onClick={onSegarkan} className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 font-semibold text-laut-700 shadow-sm ring-1 ring-black/5">
-          <IkonSegar className={memperbarui ? "h-4 w-4 animate-spin" : "h-4 w-4"} /> Perbarui data
-        </button>
-        <button onClick={perbaruiAplikasi} className="flex items-center gap-1.5 rounded-full bg-laut-900 px-4 py-2 font-semibold text-white shadow-sm">
-          Perbarui aplikasi
-        </button>
         {saya && (
           <button onClick={onKeluar} className="text-slate-400">
             Bukan {saya.nama.split(" ")[0]}? Ganti peserta

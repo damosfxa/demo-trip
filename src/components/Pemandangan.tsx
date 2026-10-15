@@ -28,18 +28,6 @@ const FAJAR: Palet = { langit: "#e9a0a0", langitBawah: "#f7c99a", gunungJauh: "#
 const SIANG: Palet = { langit: "#7cc8e3", langitBawah: "#b9e3f1", gunungJauh: "#8fbfcf", gunung: "#5f9fb3", laut: "#11789f", lautMuda: "#2a9dc4", pulau: "#0a3a52" };
 const SENJA: Palet = { langit: "#f39a7b", langitBawah: "#f9c58f", gunungJauh: "#c98a8a", gunung: "#9a6476", laut: "#5b4f7d", lautMuda: "#7c6a96", pulau: "#2e2340" };
 
-// Titik waktu dan warnanya. Di antara dua titik, warna dicampur pelan-pelan.
-const JADWAL: [number, Palet][] = [
-  [0, MALAM],
-  [4.5, MALAM],
-  [6, FAJAR],
-  [7.5, SIANG],
-  [16.5, SIANG],
-  [17.8, SENJA],
-  [18.8, MALAM],
-  [24, MALAM],
-];
-
 const batas = (x: number) => Math.max(0, Math.min(1, x));
 
 function hexKeRgb(h: string): [number, number, number] {
@@ -53,13 +41,23 @@ const campur = (a: string, b: string, t: number) => {
   return `#${c(r1, r2)}${c(g1, g2)}${c(b1, b2)}`;
 };
 
-/** Warna langit dan laut untuk jam tertentu, dicampur dari dua titik waktu terdekat. */
-function paletPada(jam: number): Palet {
+/** Warna langit dan laut untuk jam tertentu, mengikuti waktu terbit dan terbenam asli (fajar dan senja sekitar satu jam). */
+function paletPada(jam: number, terbit: number, terbenam: number): Palet {
+  const titik: [number, Palet][] = [
+    [0, MALAM],
+    [terbit - 1, MALAM],
+    [terbit + 0.75, FAJAR],
+    [terbit + 2, SIANG],
+    [terbenam - 1.5, SIANG],
+    [terbenam, SENJA],
+    [terbenam + 1.2, MALAM],
+    [24, MALAM],
+  ];
   const j = ((jam % 24) + 24) % 24;
-  for (let i = 0; i < JADWAL.length - 1; i++) {
-    const [a, pa] = JADWAL[i];
-    const [b, pb] = JADWAL[i + 1];
-    if (j >= a && j <= b) {
+  for (let i = 0; i < titik.length - 1; i++) {
+    const [a, pa] = titik[i];
+    const [b, pb] = titik[i + 1];
+    if (j >= a && j <= b && b > a) {
       const t = (j - a) / (b - a);
       const hasil = {} as Palet;
       (Object.keys(pa) as (keyof Palet)[]).forEach((k) => (hasil[k] = campur(pa[k], pb[k], t)));
@@ -72,26 +70,30 @@ function paletPada(jam: number): Palet {
 // Gelombang yang berulang tiap 200 unit supaya bisa digeser tanpa terlihat sambungannya.
 const gelombang = (y: number, tinggi: number) => `M0 ${y} ` + `q 50 ${-tinggi} 100 0 t 100 0 `.repeat(4) + "V 260 H 0 Z";
 
-/** Keadaan matahari dan bulan dari jam: posisi di busur, dan seberapa terlihat. */
-function keadaanLangit(jam: number) {
-  // Matahari: terbit sekitar 5.30, terbenam sekitar 18.30.
-  const tSiang = batas((jam - 5.5) / 13);
-  const matahariTerlihat = batas(Math.min((jam - 5.5) / 0.8, (18.8 - jam) / 0.8));
-  // Bulan: terlihat dari sore sampai sebelum matahari terbit.
-  const tMalam = batas(((jam - 18.5 + 24) % 24) / 11);
-  const bulanTerlihat = batas(jam >= 12 ? (jam - 18.3) / 0.8 : (5.5 - jam) / 0.8);
+/** Keadaan matahari dan bulan dari jam, memakai waktu terbit dan terbenam asli. */
+function keadaanLangit(jam: number, terbit: number, terbenam: number) {
+  const panjangSiang = terbenam - terbit;
+  const tSiang = batas((jam - terbit) / panjangSiang);
+  const matahariTerlihat = batas(Math.min((jam - terbit) / 0.5, (terbenam - jam) / 0.5));
+  const panjangMalam = terbit + 24 - terbenam;
+  const tMalam = batas(((jam - terbenam + 24) % 24) / panjangMalam);
+  const bulanTerlihat = batas(Math.min(((jam - terbenam + 24) % 24) / 0.5, (terbit + 24 - jam) / 0.5));
   return {
     matahari: { x: 90 + 220 * tSiang, y: 214 - 160 * Math.sin(Math.PI * tSiang), opacity: matahariTerlihat },
     bulan: { x: 90 + 220 * tMalam, y: 214 - 150 * Math.sin(Math.PI * tMalam), opacity: bulanTerlihat },
   };
 }
 
-export function Pemandangan({ jam, className = "" }: { suasana?: Suasana; jam?: number; className?: string }) {
+export function Pemandangan({ jam, cuaca, className = "" }: { suasana?: Suasana; jam?: number; cuaca?: { terbit: number; terbenam: number; awan: number; kode: number } | null; className?: string }) {
   // Tanpa jam dari pemanggil, pakai jam sekarang (zona Indonesia), diperbarui tiap menit.
   const waktu = useSekarang();
   const sekarang = jam ?? (waktu ? jamPecahan("Asia/Jakarta", waktu) : 12);
-  const w = paletPada(sekarang);
-  const langit = keadaanLangit(sekarang);
+  const terbit = cuaca?.terbit ?? 5.5;
+  const terbenam = cuaca?.terbenam ?? 18.5;
+  const w = paletPada(sekarang, terbit, terbenam);
+  const langit = keadaanLangit(sekarang, terbit, terbenam);
+  const hujan = (cuaca?.kode ?? 0) >= 51;
+  const awan = cuaca ? 0.25 + 0.7 * (cuaca.awan / 100) : 0.9;
   const bintang = langit.bulan.opacity;
   const transisi = { transition: "transform 1.6s ease, opacity 1.6s ease" } as const;
 
@@ -122,10 +124,19 @@ export function Pemandangan({ jam, className = "" }: { suasana?: Suasana; jam?: 
 
       {/* Awan bergerak */}
       {[{ y: 40, d: 38, s: 1, delay: 0 }, { y: 70, d: 55, s: 0.7, delay: -20 }, { y: 26, d: 70, s: 0.55, delay: -45 }].map((a, i) => (
-        <g key={i} className="awan" style={{ animationDuration: `${a.d}s`, animationDelay: `${a.delay}s` }} opacity={0.4 + 0.55 * langit.matahari.opacity}>
+        <g key={i} className="awan" style={{ animationDuration: `${a.d}s`, animationDelay: `${a.delay}s` }} opacity={awan * (0.5 + 0.5 * Math.max(langit.matahari.opacity, langit.bulan.opacity))}>
           <image href="/ikon/awan-kartun.png" x="0" y={a.y} width={120 * a.s} height={70 * a.s} />
         </g>
       ))}
+
+      {/* Hujan: garis-garis miring saat kode cuaca hujan */}
+      {hujan && (
+        <g className="hujan" stroke="#dbeafe" strokeWidth="1" strokeLinecap="round" opacity="0.75">
+          {Array.from({ length: 22 }, (_, i) => (
+            <line key={i} x1={20 + i * 17} y1={-20} x2={10 + i * 17} y2={20} />
+          ))}
+        </g>
+      )}
 
       {/* Pesawat terbang melintas saat matahari terlihat */}
       <g opacity={langit.matahari.opacity}>

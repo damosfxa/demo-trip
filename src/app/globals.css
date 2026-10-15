@@ -242,3 +242,10 @@ main:has(> .panel-lebar) { max-width: 64rem; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Hujan: garis jatuh miring di pemandangan */
+@keyframes jatuh-hujan {
+  from { transform: translateY(0); }
+  to { transform: translateY(260px); }
+}
+.hujan { animation: jatuh-hujan 0.9s linear infinite; }

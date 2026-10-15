@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { Trip } from "@/lib/types";
 import { Pemandangan, jamPecahan, suasanaDari } from "../Pemandangan";
+import { teksCuaca, useCuaca } from "@/lib/cuaca";
 
 /** Jam (0-23) di zona waktu trip, untuk memilih suasana siang, senja, atau malam. */
 function jamDi(zona: string, waktu: number) {
@@ -32,6 +33,7 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
   }, []);
 
   const suasana = suasanaDari(jamDi(trip.zona, sekarang));
+  const cuaca = useCuaca(trip.zona);
 
   return (
     <div className={`relative ${tinggi} overflow-hidden bg-laut-900`}>
@@ -40,7 +42,7 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
           // eslint-disable-next-line @next/next/no-img-element
           <img src={trip.cover_url} alt="" className="anim-zoom h-full w-full object-cover" />
         ) : (
-          <Pemandangan suasana={suasana} jam={jamPecahan(trip.zona, sekarang)} className="h-full w-full" />
+          <Pemandangan suasana={suasana} jam={jamPecahan(trip.zona, sekarang)} cuaca={cuaca} className="h-full w-full" />
         )}
       </div>
       {/* Lapisan gelap di bawah supaya teks selalu terbaca */}
@@ -48,6 +50,11 @@ export function Hero({ trip, sekarang, tinggi = "h-[22rem]", children }: { trip:
       {trip.logo_url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={trip.logo_url} alt={trip.penyelenggara ?? "Logo"} className="absolute left-4 top-4 h-10 max-w-[9rem] rounded-xl bg-white/95 object-contain p-1.5 shadow-sm" />
+      )}
+      {cuaca && (
+        <span className="absolute right-4 top-4 rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white backdrop-blur-md">
+          {teksCuaca(cuaca.kode)} · {cuaca.suhu}°C
+        </span>
       )}
       <div className="relative flex h-full flex-col justify-end px-5 pb-14 text-white">{children}</div>
     </div>

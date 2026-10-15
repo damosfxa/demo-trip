@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { PAKET_CONTOH, SAYA_CONTOH } from "@/lib/contoh";
-import { keluar, kunciToken, muatSaya, muatTrip, salinanSaya, salinanTrip, type PaketTrip } from "@/lib/data-peserta";
+import { SAYA_CONTOH } from "@/lib/contoh";
+import { keluar, kunciToken, kunciTrip, muatSaya, muatTrip, type PaketTrip } from "@/lib/data-peserta";
 import { useSekarang } from "@/lib/jam";
 import { baca, tulis, useSimpan } from "@/lib/simpan";
 import { gayaTema } from "@/lib/tema";
@@ -12,6 +12,7 @@ import { Beranda } from "./Beranda";
 import { InfoTrip } from "./InfoTrip";
 import { Jadwal } from "./Jadwal";
 import { Kartu } from "./Kartu";
+import { LayarMuat } from "./LayarMuat";
 import { NyalakanNotifikasi, PopupKabar, type Kabar } from "./Notifikasi";
 import { Registrasi } from "./Registrasi";
 
@@ -25,6 +26,8 @@ const TABS: { id: Tab; label: string; Ikon: typeof IkonRumah }[] = [
 
 export function PesertaApp({ slug }: { slug: string }) {
   const token = useSimpan<string>(kunciToken(slug));
+  // Salinan trip terakhir di HP ini (kosong di server, jadi tidak menimbulkan ketidakcocokan saat hydrate).
+  const lama = useSimpan<PaketTrip>(kunciTrip(slug));
   const sekarang = useSekarang();
   const [paket, setPaket] = useState<PaketTrip | null>(null);
   const [saya, setSaya] = useState<DataSaya | null>(null);
@@ -35,6 +38,12 @@ export function PesertaApp({ slug }: { slug: string }) {
   const [muat, setMuat] = useState(0);
   const [memperbarui, setMemperbarui] = useState(false);
   const [kabar, setKabar] = useState<Kabar | null>(null);
+  // Layar muat tampil minimal sebentar supaya animasinya sempat terlihat dan tidak berkedip.
+  const [siap, setSiap] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSiap(true), 1600);
+    return () => clearTimeout(t);
+  }, []);
 
   // Data trip (publik).
   useEffect(() => {
@@ -112,22 +121,12 @@ export function PesertaApp({ slug }: { slug: string }) {
       </div>
     );
   }
-  // Skeleton digambar dari halaman asli memakai data terakhir di HP ini (atau contoh pada kunjungan pertama),
-  // jadi ukuran teks, kotak, dan sampulnya sama persis dengan yang akan tampil.
-  if (!paket || token === undefined) {
-    const lama = salinanTrip(slug) ?? PAKET_CONTOH;
-    return (
-      <div className="mode-kerangka" aria-busy="true" aria-label="Memuat" style={gayaTema(lama.trip.tema)}>
-        {token ? (
-          <Tampilan paket={lama} saya={salinanSaya(slug) ?? SAYA_CONTOH} sekarang={sekarang} tab="beranda" />
-        ) : (
-          <Registrasi trip={lama.trip} />
-        )}
-      </div>
-    );
+  // Layar muat yang hidup selama data dimuat, dengan nama trip dari salinan terakhir di HP ini bila ada.
+  if (!paket || token === undefined || !siap) {
+    return <LayarMuat nama={lama?.trip.nama} tujuan={lama?.trip.tujuan} tema={lama?.trip.tema} />;
   }
   // Warna mengikuti tema agen yang dipilih panitia.
-  if (!token) return <div style={gayaTema(paket.trip.tema)}><Registrasi trip={paket.trip} /></div>;
+  if (!token) return <div className="anim-pudar" style={gayaTema(paket.trip.tema)}><Registrasi trip={paket.trip} /></div>;
 
   const pindah = (t: Tab) => {
     setTab(t);
@@ -136,7 +135,7 @@ export function PesertaApp({ slug }: { slug: string }) {
   };
 
   return (
-    <div style={gayaTema(paket.trip.tema)}>
+    <div className="anim-pudar" style={gayaTema(paket.trip.tema)}>
       <Tampilan
         paket={paket}
         saya={saya}
@@ -184,7 +183,7 @@ function Tampilan({ paket, saya, sekarang, tab, offline, animasi, memperbarui, o
       )}
 
       <div key={tab} className={animasi ? "anim-geser" : ""}>
-        {tab === "beranda" && <Beranda paket={paket} saya={saya} sekarang={sekarang} keKartu={() => onPindah("kartu")} keJadwal={() => onPindah("jadwal")} notifikasi={notifikasi} />}
+        {tab === "beranda" && <Beranda paket={paket} saya={saya} sekarang={sekarang} keKartu={() => onPindah("kartu")} keJadwal={() => onPindah("jadwal")} keInfo={() => onPindah("info")} notifikasi={notifikasi} />}
         {tab === "jadwal" && <Jadwal trip={paket.trip} agenda={paket.agenda} sekarang={sekarang} />}
         {tab === "kartu" &&
           (saya ? (

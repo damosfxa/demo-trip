@@ -7,7 +7,7 @@ import type { Agenda, DataSaya, Pengumuman, Trip } from "./types";
 
 export const kunciToken = (slug: string) => `infotrip:token:${slug}`;
 export const kunciCek = (slug: string) => `infotrip:cek:${slug}`;
-const kunciTrip = (slug: string) => `infotrip:trip:${slug}`;
+export const kunciTrip = (slug: string) => `infotrip:trip:${slug}`;
 const kunciSaya = (slug: string) => `infotrip:saya:${slug}`;
 
 export type PaketTrip = { trip: Trip; agenda: Agenda[]; pengumuman: Pengumuman[]; diambil: string };

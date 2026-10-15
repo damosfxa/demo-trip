@@ -4,7 +4,36 @@ import { useState } from "react";
 import { akhir, jamAcara, perHari, zonaAcara } from "@/lib/agenda";
 import type { Agenda, Trip } from "@/lib/types";
 import { kunciHari, tanggalPanjang } from "@/lib/waktu";
-import { IkonLokasi } from "../Ikon";
+import { IkonKalender, IkonLokasi } from "../Ikon";
+
+// Format iCalendar (UTC, tanpa milidetik).
+const stempel = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const escIcs = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+
+/** Unduh satu acara sebagai file kalender (.ics), bisa dibuka di kalender HP mana pun. */
+function unduhIcs(a: Agenda, selesai: number, trip: Trip) {
+  const teks = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Info Trip//ID",
+    "BEGIN:VEVENT",
+    `UID:${a.id}@infotrip`,
+    `DTSTAMP:${stempel(new Date().toISOString())}`,
+    `DTSTART:${stempel(a.mulai)}`,
+    `DTEND:${stempel(new Date(selesai).toISOString())}`,
+    `SUMMARY:${escIcs(a.judul)}`,
+    `LOCATION:${escIcs(a.lokasi ?? trip.titik_kumpul ?? "")}`,
+    `DESCRIPTION:${escIcs(`${trip.nama}${a.ket ? `\n${a.ket}` : ""}`)}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([teks], { type: "text/calendar;charset=utf-8" }));
+  const el = document.createElement("a");
+  el.href = url;
+  el.download = `${a.judul.replace(/[^\w\s-]/g, "").trim() || "agenda"}.ics`;
+  el.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[]; sekarang: number }) {
   const hari = perHari(agenda, trip.zona);
@@ -35,7 +64,7 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
                     onClick={() => setPilih(i)}
                     className={`flex min-w-[4.5rem] flex-col items-center rounded-2xl px-3 py-2 transition ${i === idx ? "bg-laut-900 text-white shadow-lg shadow-laut-900/25" : "bg-white text-slate-600 ring-1 ring-black/5"}`}
                   >
-                    <span className="text-[11px] font-semibold uppercase opacity-75">Hari {i + 1}</span>
+                    <span className="text-[11px] font-semibold uppercase opacity-75">{x.hari === hariIni ? "Hari ini" : `Hari ${i + 1}`}</span>
                     <span className="text-xl font-extrabold leading-tight">{new Intl.DateTimeFormat("id-ID", { day: "numeric", timeZone: z }).format(tgl)}</span>
                     <span className="text-[11px] font-medium opacity-75">{new Intl.DateTimeFormat("id-ID", { month: "short", timeZone: z }).format(tgl)}</span>
                   </button>
@@ -74,6 +103,9 @@ export function Jadwal({ trip, agenda, sekarang }: { trip: Trip; agenda: Agenda[
                     <p className="mt-0.5 text-[17px] font-bold text-laut-950">{a.judul}</p>
                     {a.lokasi && <p className="mt-1 flex items-center gap-1 text-sm text-slate-500"><IkonLokasi className="h-4 w-4 shrink-0" /> {a.lokasi}</p>}
                     {a.ket && <p className="mt-1 text-sm leading-relaxed text-slate-600">{a.ket}</p>}
+                    <button onClick={() => unduhIcs(a, akhir(agenda, pos), trip)} className="mt-3 flex items-center gap-1.5 rounded-xl bg-laut-50 px-3 py-1.5 text-xs font-bold text-laut-800 transition active:scale-95">
+                      <IkonKalender className="h-3.5 w-3.5" /> Tambah ke kalender
+                    </button>
                   </div>
                 </li>
               );

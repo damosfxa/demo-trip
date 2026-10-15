@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { KartuCetak } from "./KartuCetak";
 import { unduhCsv } from "@/lib/panitia";
 import type { Peserta } from "@/lib/types";
 import { rentangTanggal } from "@/lib/waktu";
@@ -29,6 +30,7 @@ export function TabDokumen({ data }: PropsTab) {
   const { trip, peserta } = data;
   const [jenis, setJenis] = useState<Jenis>("kamar");
   const [denganIsian, setDenganIsian] = useState(true);
+  const [kartu, setKartu] = useState(false);
   const grup = kelompokkan(peserta, jenis);
   const judul = jenis === "kamar" ? "Rooming list" : "Manifest bus";
   const isian = denganIsian ? trip.isian : [];
@@ -61,10 +63,12 @@ export function TabDokumen({ data }: PropsTab) {
           <button onClick={() => window.print()} className={tombol}>Cetak / simpan PDF</button>
           <button onClick={ekspor} className={tombolGaris}>Unduh Excel</button>
         </div>
+        <button onClick={() => setKartu((k) => !k)} className={`${tombolGaris} w-full`}>{kartu ? "Kembali ke rooming list / manifest" : "Kartu peserta dengan QR (cetak)"}</button>
       </Kartu>
 
       {/* Dokumen yang dicetak. Di layar tampil sebagai pratinjau kertas. */}
-      <div className="cetak overflow-x-auto rounded-xl bg-white p-5 text-[13px] text-slate-900 shadow-sm ring-1 ring-black/5 print:rounded-none print:p-0 print:shadow-none print:ring-0">
+      {kartu && <KartuCetak trip={trip} peserta={peserta} />}
+      <div className={`cetak overflow-x-auto ${kartu ? "hidden" : ""} rounded-xl bg-white p-5 text-[13px] text-slate-900 shadow-sm ring-1 ring-black/5 print:rounded-none print:p-0 print:shadow-none print:ring-0`}>
         <header className="flex items-start justify-between gap-4 border-b-2 border-slate-900 pb-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">{judul}</p>

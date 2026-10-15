@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { kunciCek } from "@/lib/data-peserta";
+import { pesanError, supabase } from "@/lib/supabase";
 import { tulis, useSimpan } from "@/lib/simpan";
 import type { Trip } from "@/lib/types";
 import { waLink } from "@/lib/waktu";
-import { IkonCentang, IkonInfo, IkonKoper, IkonLokasi, IkonPanah, IkonSalin, IkonTanya, IkonWa } from "../Ikon";
+import { IkonCentang, IkonInfo, IkonKoper, IkonLokasi, IkonPanah, IkonSalin, IkonTanya, IkonTelp, IkonWa } from "../Ikon";
 
 function Cincin({ nilai, total }: { nilai: number; total: number }) {
   const r = 22;
@@ -38,7 +39,62 @@ function TombolSalin({ teks }: { teks: string }) {
   );
 }
 
-export function InfoTrip({ trip, nama }: { trip: Trip; nama: string }) {
+/** Formulir peserta untuk memperbarui nomor HP dan isian (misalnya ukuran kaos) sendiri. */
+function DataSaya({ trip, token, isianAwal, onSimpan }: { trip: Trip; token: string; isianAwal: Record<string, string>; onSimpan: () => void }) {
+  const [buka, setBuka] = useState(false);
+  const [hp, setHp] = useState("");
+  const [isian, setIsian] = useState<Record<string, string>>(isianAwal);
+  const [pesan, setPesan] = useState<string | null>(null);
+  const [proses, setProses] = useState(false);
+
+  const simpan = async () => {
+    setPesan(null);
+    if (!hp.trim()) return setPesan("Isi nomor HP yang aktif.");
+    setProses(true);
+    const { error } = await supabase.rpc("ubah_data_saya", { p_token: token, p_hp: hp, p_isian: isian });
+    setProses(false);
+    if (error) return setPesan(pesanError(error));
+    setPesan("Data Anda sudah diperbarui.");
+    setBuka(false);
+    onSimpan();
+  };
+
+  return (
+    <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-bold text-laut-950">Data saya</p>
+        <button onClick={() => setBuka((b) => !b)} className="text-sm font-bold text-laut-700">{buka ? "Tutup" : "Ubah"}</button>
+      </div>
+      {pesan && <p className="mt-2 rounded-xl bg-laut-50 px-3 py-2 text-sm text-laut-900">{pesan}</p>}
+      {buka && (
+        <div className="mt-3 space-y-2.5">
+          <label className="block space-y-1">
+            <span className="text-xs font-semibold text-slate-500">Nomor HP (WhatsApp) yang aktif</span>
+            <input value={hp} onChange={(e) => setHp(e.target.value)} inputMode="tel" className="w-full rounded-2xl border border-slate-200 px-3.5 py-3 text-[15px] outline-none focus:border-laut-600" placeholder="0812 3456 7890" />
+          </label>
+          {trip.isian.map((f) => (
+            <label key={f.id} className="block space-y-1">
+              <span className="text-xs font-semibold text-slate-500">{f.label}{f.wajib ? "" : " (opsional)"}</span>
+              {f.pilihan.length > 0 ? (
+                <select value={isian[f.id] ?? ""} onChange={(e) => setIsian({ ...isian, [f.id]: e.target.value })} className="w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-3 text-[15px] outline-none focus:border-laut-600">
+                  <option value="">Pilih</option>
+                  {f.pilihan.map((o) => <option key={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input value={isian[f.id] ?? ""} onChange={(e) => setIsian({ ...isian, [f.id]: e.target.value })} className="w-full rounded-2xl border border-slate-200 px-3.5 py-3 text-[15px] outline-none focus:border-laut-600" />
+              )}
+            </label>
+          ))}
+          <button onClick={simpan} disabled={proses} className="w-full rounded-2xl bg-laut-900 py-3 text-sm font-bold text-white transition active:scale-[0.98] disabled:opacity-60">
+            {proses ? "Menyimpan..." : "Simpan perubahan"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function InfoTrip({ trip, nama, token, isianSaya, onSegarkan, gelap, onGelap }: { trip: Trip; nama: string; token?: string; isianSaya?: Record<string, string>; onSegarkan?: () => void; gelap?: boolean; onGelap?: () => void }) {
   const cek = useSimpan<number[]>(kunciCek(trip.slug)) ?? [];
   const [baruDicentang, setBaruDicentang] = useState<number | null>(null);
   const [cari, setCari] = useState("");
@@ -47,6 +103,7 @@ export function InfoTrip({ trip, nama }: { trip: Trip; nama: string }) {
     tulis(kunciCek(trip.slug), cek.includes(i) ? cek.filter((x) => x !== i) : [...cek, i]);
   };
   const wa = waLink(trip.wa_panitia, `Halo panitia ${trip.nama}, saya ${nama}. Saya mau bertanya: `);
+  const telp = trip.wa_panitia ? `tel:+${trip.wa_panitia.replace(/\D/g, "").replace(/^0/, "62")}` : null;
   const peta = trip.titik_kumpul ? `https://maps.google.com/maps?q=${encodeURIComponent(trip.titik_kumpul)}&z=15&output=embed` : null;
   const lengkap = trip.checklist.length > 0 && cek.length === trip.checklist.length;
 
@@ -105,9 +162,23 @@ export function InfoTrip({ trip, nama }: { trip: Trip; nama: string }) {
                   <IkonWa className="h-4 w-4" /> Tanya panitia
                 </a>
               )}
+              {telp && (
+                <a href={telp} className="col-span-2 flex items-center justify-center gap-2 rounded-2xl bg-laut-900 py-3 text-sm font-bold text-white transition active:scale-95">
+                  <IkonTelp className="h-4 w-4" /> Telepon panitia
+                </a>
+              )}
             </div>
           </div>
         </div>
+      )}
+
+      {token && onSegarkan && !q && <DataSaya trip={trip} token={token} isianAwal={isianSaya ?? {}} onSimpan={onSegarkan} />}
+
+      {onGelap && (
+        <button onClick={onGelap} className="flex w-full items-center justify-between rounded-3xl bg-white p-4 text-left text-sm font-semibold text-laut-950 shadow-sm ring-1 ring-black/5">
+          <span>Mode malam</span>
+          <span className="text-laut-700">{gelap ? "Aktif" : "Nonaktif"}</span>
+        </button>
       )}
 
       {/* Info penting */}

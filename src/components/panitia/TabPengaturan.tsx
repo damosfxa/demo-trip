@@ -52,6 +52,8 @@ function keForm(t: Trip) {
     info: t.info.map((i) => `${i.judul}: ${i.isi}`).join("\n"),
     faq: t.faq.map((f) => `${f.q} | ${f.a}`).join("\n"),
     aktif: t.aktif,
+    kapasitas_bus: String(t.kapasitas_bus ?? 40),
+    kapasitas_kamar: String(t.kapasitas_kamar ?? 2),
   };
 }
 
@@ -67,6 +69,9 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
     const departemen = baris(f.departemen);
     const titik = baris(f.titik_absen);
     if (!departemen.length || !titik.length) return alert("Departemen dan titik absen minimal satu.");
+    const kapBus = Number(f.kapasitas_bus);
+    const kapKamar = Number(f.kapasitas_kamar);
+    if (!Number.isInteger(kapBus) || kapBus < 1 || !Number.isInteger(kapKamar) || kapKamar < 1) return alert("Kapasitas bus dan kamar harus angka minimal 1.");
     setProses(true);
     const { error } = await supabase
       .from("trips")
@@ -96,6 +101,8 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
           return { q: q.trim(), a: a.join("|").trim() };
         }).filter((x) => x.q && x.a),
         aktif: f.aktif,
+        kapasitas_bus: kapBus,
+        kapasitas_kamar: kapKamar,
       })
       .eq("id", data.trip.id);
     setProses(false);
@@ -156,6 +163,10 @@ export function TabPengaturan({ data, bisaUbah, muatUlang }: PropsTab) {
 
       <Kartu className="space-y-3">
         <p className="font-bold">Isian dan absensi</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Label teks="Kapasitas per bus (orang)"><input type="number" min={1} className={field} value={f.kapasitas_bus} onChange={set("kapasitas_bus")} disabled={d} /></Label>
+          <Label teks="Kapasitas per kamar (orang)"><input type="number" min={1} className={field} value={f.kapasitas_kamar} onChange={set("kapasitas_kamar")} disabled={d} /></Label>
+        </div>
         <Label teks="Isian registrasi tambahan" catatan="Satu per baris, format  Label* | Pilihan A, Pilihan B . Tanda * berarti wajib. Tanpa pilihan berarti isian teks bebas.">
           <textarea rows={4} className={field} value={f.isian} onChange={set("isian")} placeholder={"Ukuran kaos* | S, M, L, XL\nKontak darurat*\nAlergi makanan"} disabled={d} />
         </Label>

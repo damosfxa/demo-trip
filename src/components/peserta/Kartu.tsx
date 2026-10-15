@@ -70,6 +70,17 @@ export function Kartu({ trip, saya }: { trip: Trip; saya: DataSaya }) {
           <Isian label="Bus" nilai={saya.bus} />
           <Isian label="Kamar" nilai={saya.kamar} />
           <Isian label="Teman sekamar" nilai={saya.teman_sekamar.length ? saya.teman_sekamar.join(", ") : null} />
+          {saya.teman_kontak && saya.teman_kontak.length > 0 && (
+            <div className="space-y-1.5 px-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Hubungi teman sekamar</p>
+              {saya.teman_kontak.map((t) => (
+                <a key={t.hp} href={`tel:${t.hp}`} className="flex items-center justify-between rounded-xl bg-laut-50 px-3 py-2 text-sm font-semibold text-laut-800">
+                  <span className="truncate">{t.nama}</span>
+                  <span className="shrink-0 text-laut-600">{t.hp}</span>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Sobekan tiket */}

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { PENANDA_DARURAT, pisahDarurat } from "@/lib/darurat";
 import { kirimNotifikasi, linkPeserta } from "@/lib/panitia";
 import { pesanError, supabase } from "@/lib/supabase";
 import { relatif } from "@/lib/waktu";
 import type { PropsTab } from "./PanelTrip";
+import { PengumumanTerjadwal } from "./PengumumanTerjadwal";
 import { Kartu, field, tombol } from "./ui";
 
 type Sasaran = "semua" | "satu";
@@ -15,6 +17,7 @@ export function TabPengumuman({ data, bisaUbah, muatUlang }: PropsTab) {
   const [sasaran, setSasaran] = useState<Sasaran>("semua");
   const [pesertaId, setPesertaId] = useState("");
   const [notif, setNotif] = useState(true);
+  const [darurat, setDarurat] = useState(false);
   const [proses, setProses] = useState(false);
   const [hasil, setHasil] = useState<string | null>(null);
 
@@ -26,9 +29,10 @@ export function TabPengumuman({ data, bisaUbah, muatUlang }: PropsTab) {
     if (sasaran === "satu" && !pesertaId) return alert("Pilih peserta tujuan.");
     setProses(true);
     setHasil(null);
+    const tampil = sasaran === "semua" && darurat ? PENANDA_DARURAT + teks : teks;
     const { error } =
       sasaran === "semua"
-        ? await supabase.from("announcements").insert({ trip_id: trip.id, isi: teks })
+        ? await supabase.from("announcements").insert({ trip_id: trip.id, isi: tampil })
         : await supabase.from("pesan_pribadi").insert({ trip_id: trip.id, participant_id: pesertaId, isi: teks });
     if (error) {
       setProses(false);
@@ -53,6 +57,7 @@ export function TabPengumuman({ data, bisaUbah, muatUlang }: PropsTab) {
     setProses(false);
     setHasil(info);
     setIsi("");
+    setDarurat(false);
     muatUlang();
   };
 
@@ -87,6 +92,12 @@ export function TabPengumuman({ data, bisaUbah, muatUlang }: PropsTab) {
             </select>
           )}
           <textarea rows={4} className={field} value={isi} onChange={(e) => setIsi(e.target.value)} placeholder={sasaran === "semua" ? "Contoh: Bus 2 berangkat 15 menit lebih awal. Kumpul di lobi jam 07.45." : "Contoh: Kartu identitas Anda tertinggal di meja registrasi, silakan ambil di panitia."} />
+          {sasaran === "semua" && (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={darurat} onChange={(e) => setDarurat(e.target.checked)} />
+              Tandai darurat (tampil sebagai banner di atas aplikasi peserta)
+            </label>
+          )}
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={notif} onChange={(e) => setNotif(e.target.checked)} />
             Kirim juga sebagai notifikasi HP ({notifAktif} peserta sudah menyalakan notifikasi)
@@ -107,6 +118,7 @@ export function TabPengumuman({ data, bisaUbah, muatUlang }: PropsTab) {
           {hasil && <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{hasil}</p>}
         </Kartu>
       )}
+      <PengumumanTerjadwal trip={trip} bisaUbah={bisaUbah} />
       {daftar.map((p) => (
         <Kartu key={p.id} className="!p-4">
           <div className="flex items-start justify-between gap-3">
@@ -116,7 +128,8 @@ export function TabPengumuman({ data, bisaUbah, muatUlang }: PropsTab) {
             </p>
             {bisaUbah && <button onClick={() => hapus(p.tabel, p.id)} className="text-xs font-semibold text-red-600">Hapus</button>}
           </div>
-          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed">{p.isi}</p>
+          {pisahDarurat(p.isi).darurat && <span className="mt-1 inline-block rounded-full bg-karang-600 px-2 py-0.5 text-[11px] font-bold text-white">Darurat</span>}
+          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed">{pisahDarurat(p.isi).isi}</p>
         </Kartu>
       ))}
       {daftar.length === 0 && <p className="text-center text-sm text-slate-500">Belum ada pengumuman atau pesan.</p>}

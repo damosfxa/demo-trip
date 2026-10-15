@@ -125,6 +125,16 @@ body {
 .anim-titik > span:nth-child(3) { animation-delay: 0.4s; }
 .anim-terbang { animation: melayang 2.4s ease-in-out infinite; }
 
+/* Pesawat terbang melintas dari kiri ke kanan, naik turun sedikit */
+@keyframes terbang-lewat {
+  0% { transform: translate(-70px, 14px) rotate(-8deg); opacity: 0; }
+  12% { opacity: 1; }
+  50% { transform: translate(calc(50vw - 40px), -22px) rotate(-6deg); }
+  88% { opacity: 1; }
+  100% { transform: translate(calc(100vw + 40px), -60px) rotate(-6deg); opacity: 0; }
+}
+.anim-terbang-lewat { animation: terbang-lewat 2.8s ease-in-out infinite; }
+
 /* Elemen dalam daftar muncul berurutan. Atur urutan dengan style={{ "--i": n }}. */
 .bertahap > * { animation: masuk-naik 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 70ms); }
 
@@ -161,6 +171,17 @@ body {
 .ombak { animation: ombak linear infinite; }
 .pesawat { animation: pesawat 9s ease-in-out infinite; }
 .sinar { transform-box: fill-box; transform-origin: center; animation: sinar 4s ease-in-out infinite; }
+
+/* Mode malam untuk peserta: latar gelap dan teks terang di kartu-kartu yang umum dipakai. */
+.mode-gelap { background: #0b1d2a; color: #e6eef3; }
+.mode-gelap .bg-white { background-color: #132a3a !important; }
+.mode-gelap .bg-pasir-50, .mode-gelap .bg-laut-50, .mode-gelap .bg-pasir-100 { background-color: #0f2433 !important; }
+.mode-gelap .bg-laut-100, .mode-gelap .bg-pasir-200 { background-color: #1b3a4f !important; }
+.mode-gelap .text-laut-950, .mode-gelap .text-laut-900, .mode-gelap .text-laut-800, .mode-gelap .text-slate-800, .mode-gelap .text-slate-700, .mode-gelap .text-slate-900 { color: #e6eef3 !important; }
+.mode-gelap .text-slate-500, .mode-gelap .text-slate-400 { color: #9fb3c1 !important; }
+.mode-gelap .text-laut-700, .mode-gelap .text-laut-600 { color: #7fd0f0 !important; }
+.mode-gelap .shadow-sm, .mode-gelap .shadow-lg { box-shadow: none !important; }
+.mode-gelap input, .mode-gelap select, .mode-gelap textarea { background-color: #0f2433 !important; color: #e6eef3 !important; border-color: #27485e !important; }
 
 /* Panel panitia: lebar layar dilonggarkan, tampilan peserta tetap selebar HP */
 main:has(> .panel-lebar) { max-width: 64rem; }
@@ -207,8 +228,9 @@ main:has(> .panel-lebar) { max-width: 64rem; }
   @page { size: A4; margin: 14mm; }
   body { background: #fff; }
   body * { visibility: hidden; }
-  .cetak, .cetak * { visibility: visible; }
-  .cetak { position: absolute; left: 0; top: 0; width: 100%; }
+  .cetak, .cetak *, .cetak-kartu, .cetak-kartu * { visibility: visible; }
+  .cetak, .cetak-kartu { position: absolute; left: 0; top: 0; width: 100%; }
+  .cetak-kartu { position: static; }
   .cetak section { break-inside: avoid; }
 }
 

@@ -6,6 +6,7 @@ import type { PaketTrip } from "@/lib/data-peserta";
 import type { DataSaya } from "@/lib/types";
 import { relatif, rentangTanggal, tanggalPanjang, waLink } from "@/lib/waktu";
 import { IkonBagi, IkonBus, IkonInfo, IkonJam, IkonKalender, IkonKartu, IkonKasur, IkonLokasi, IkonPanah, IkonToa, IkonWa } from "../Ikon";
+import { pisahDarurat } from "@/lib/darurat";
 import { Hero } from "./Hero";
 import { HitungMundur } from "./HitungMundur";
 import { PasangAplikasi } from "./PasangAplikasi";
@@ -136,7 +137,7 @@ export function Beranda({ paket, saya, sekarang, keKartu, keJadwal, keInfo, noti
                       {relatif(p.created_at)}
                       {baru && <span className="rounded-full bg-karang-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Baru</span>}
                     </p>
-                    <p className="mt-1 whitespace-pre-line text-[15px] leading-relaxed text-slate-800">{p.isi}</p>
+                    <p className="mt-1 whitespace-pre-line text-[15px] leading-relaxed text-slate-800">{pisahDarurat(p.isi).isi}</p>
                   </li>
                 );
               })}

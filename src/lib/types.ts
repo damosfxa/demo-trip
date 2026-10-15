@@ -22,6 +22,8 @@ export type Trip = {
   isian: Isian[];
   logo_url: string | null;
   tema: Tema;
+  kapasitas_bus?: number;
+  kapasitas_kamar?: number;
   created_at: string;
 };
 
@@ -57,6 +59,7 @@ export type DataSaya = {
   kamar: string | null;
   isian: Record<string, string>;
   teman_sekamar: string[];
+  teman_kontak?: { nama: string; hp: string }[];
   absen: { titik: string; waktu: string }[];
   pesan: PesanPribadi[];
 };

@@ -11,6 +11,7 @@ export function Ringkasan({ data }: PropsTab) {
   const link = linkPeserta(trip.slug);
   const [qr, setQr] = useState<string | null>(null);
   const [tersalin, setTersalin] = useState(false);
+  const [salinRangkuman, setSalinRangkuman] = useState(false);
 
   useEffect(() => {
     let aktif = true;
@@ -22,7 +23,27 @@ export function Ringkasan({ data }: PropsTab) {
 
   const per = trip.departemen.map((d) => ({ d, n: peserta.filter((p) => p.departemen === d).length }));
   const tanpaBus = peserta.filter((p) => !p.bus).length;
+  // Peringatan kalau bus atau kamar sudah melebihi kapasitas yang diisi panitia.
+  const kapBus = trip.kapasitas_bus ?? 40;
+  const kapKamar = trip.kapasitas_kamar ?? 2;
+  const jumlahBus = new Map<string, number>();
+  const jumlahKamar = new Map<string, number>();
+  for (const p of peserta) {
+    if (p.bus) jumlahBus.set(p.bus, (jumlahBus.get(p.bus) ?? 0) + 1);
+    if (p.kamar) jumlahKamar.set(p.kamar, (jumlahKamar.get(p.kamar) ?? 0) + 1);
+  }
+  const busPenuh = [...jumlahBus].filter(([, n]) => n > kapBus);
+  const kamarPenuh = [...jumlahKamar].filter(([, n]) => n > kapKamar);
   const tanpaKamar = peserta.filter((p) => !p.kamar).length;
+  // Rangkuman singkat untuk ditempel ke grup WhatsApp panitia.
+  const rangkuman = [
+    `Rangkuman ${trip.nama} (${new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: trip.zona })})`,
+    `Terdaftar: ${peserta.length} peserta`,
+    `Belum ada bus: ${peserta.filter((p) => !p.bus).length}, belum ada kamar: ${peserta.filter((p) => !p.kamar).length}`,
+    "",
+    "Kehadiran per titik:",
+    ...trip.titik_absen.map((t) => `- ${t}: ${absen.filter((a) => a.titik === t).length} dari ${peserta.length}`),
+  ].join("\n");
   const ajakan = `Halo peserta ${trip.nama}! Silakan registrasi dan lihat jadwal, kartu peserta, serta info perjalanan di sini:\n${link}`;
 
   return (
@@ -38,6 +59,14 @@ export function Ringkasan({ data }: PropsTab) {
         </Kartu>
       </div>
 
+      {(busPenuh.length > 0 || kamarPenuh.length > 0) && (
+        <Kartu className="space-y-2 !p-4 ring-amber-300">
+          <p className="text-sm font-bold text-amber-800">Melebihi kapasitas</p>
+          {busPenuh.map(([b, n]) => <p key={b} className="text-sm text-amber-900">{b}: {n} peserta (kapasitas {kapBus})</p>)}
+          {kamarPenuh.map(([k, n]) => <p key={k} className="text-sm text-amber-900">Kamar {k}: {n} orang (kapasitas {kapKamar})</p>)}
+        </Kartu>
+      )}
+
       <Kartu className="space-y-3">
         <p className="font-bold">Kehadiran per titik absen</p>
         {trip.titik_absen.map((t) => (
@@ -48,6 +77,16 @@ export function Ringkasan({ data }: PropsTab) {
       <Kartu className="space-y-3">
         <p className="font-bold">Peserta per departemen</p>
         {per.map((x) => <Batang key={x.d} label={x.d} nilai={x.n} total={peserta.length} />)}
+      </Kartu>
+
+      <Kartu className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="font-bold">Rangkuman untuk grup panitia</p>
+          <button onClick={async () => { await navigator.clipboard.writeText(rangkuman); setSalinRangkuman(true); setTimeout(() => setSalinRangkuman(false), 1500); }} className={tombolGaris}>
+            {salinRangkuman ? "Tersalin ✓" : "Salin rangkuman"}
+          </button>
+        </div>
+        <pre className="whitespace-pre-wrap rounded-xl bg-pasir-50 px-3 py-2 font-sans text-sm text-slate-700">{rangkuman}</pre>
       </Kartu>
 
       <Kartu className="space-y-3">

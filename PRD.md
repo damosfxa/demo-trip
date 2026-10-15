@@ -77,6 +77,22 @@ Status per 16 Okt 2026. Lihat [QA.md](QA.md) untuk hasil tes.
 | FR-24 | Salin titik kumpul dan info penting dengan satu ketukan | [U] | P2 | Ada, belum tes di HP asli |
 | FR-25 | Bisa dipasang sebagai aplikasi: manifest lengkap, service worker menyimpan kerangka aplikasi sejak kunjungan pertama | [U] | P0 | Ada, build statis lulus |
 | FR-26 | Jadwal dengan label "Hari ini" dan tombol tambah ke kalender per acara | [U] | P1 | Ada, tampil |
+| FR-27 | Absensi manual: cari nama lalu tandai hadir, tanpa scan QR | [U] | P1 | Sudah ada sebelumnya di tab Absensi |
+| FR-28 | Banner pengumuman darurat di atas aplikasi peserta (ditandai penanda `[DARURAT]` di isi pengumuman) | [U] | P0 | Ada, belum diuji dengan data nyata |
+| FR-29 | Salin rangkuman untuk grup WhatsApp panitia (jumlah terdaftar, belum punya bus dan kamar, kehadiran per titik) | [U] | P1 | Ada, tampil di panel |
+| FR-30 | Telepon panitia dan teman sekamar dengan nomor HP | [U] | P1 | Ada, butuh migrasi untuk teman sekamar |
+| FR-31 | Peringatan kapasitas bus dan kamar, dengan form pengaturan | [U] | P1 | Ada, butuh migrasi |
+| FR-32 | Kirim link ke satu peserta lewat WhatsApp | [U] | P1 | Ada |
+| FR-33 | Impor peserta dari CSV, dengan laporan baris yang dilewati | [U] | P1 | Ada, butuh migrasi |
+| FR-34 | Atur bus dan kamar untuk beberapa peserta sekaligus | [U] | P1 | Ada |
+| FR-35 | Gabung peserta dengan nama ganda | [U] | P1 | Ada |
+| FR-36 | Cetak kartu peserta dengan QR (tab Dokumen) dan daftar hadir per titik (tab Absensi) | [U] | P1 | Ada, belum dicetak di printer |
+| FR-37 | Duplikasi trip dengan jadwal yang digeser | [U] | P1 | Ada |
+| FR-38 | Peserta mengubah nomor HP dan isian sendiri | [U] | P1 | Ada, butuh migrasi |
+| FR-39 | Mode malam untuk peserta, disimpan di HP | [U] | P2 | Ada, versi sederhana |
+| FR-40 | Pengingat H-1 dan pengumuman terjadwal | [U] | P2 | Belum, butuh penjadwal di server |
+| FR-41 | Undang panitia lain dari panel | [U] | P2 | Belum, butuh akses admin |
+| FR-42 | Dua bahasa (Indonesia dan Inggris) | [U] | P2 | Belum |
 
 ## 6. Non-functional requirements
 

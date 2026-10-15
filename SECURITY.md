@@ -44,6 +44,14 @@ Fungsi `daftar_peserta` bisa dipanggil berulang kali oleh siapa saja yang tahu s
 - Policy untuk bucket Storage. Aplikasi menyimpan `cover_url` dan `logo_url` sebagai URL `https://`, tapi belum dipastikan apakah itu berasal dari upload ke bucket.
 - Serangan XSS pada isi pengumuman dan FAQ yang ditulis panitia. React mengescape teks secara default, tapi belum ada tes khusus.
 
+### Nomor HP teman sekamar
+
+Setelah `supabase/migrasi-fitur-panitia.sql` dijalankan, peserta bisa melihat nama dan nomor HP teman satu kamar di kartu mereka. Ini hanya berlaku untuk kamar yang sama, dan hanya bisa dibuka oleh peserta yang punya token. Ini kompromi yang disengaja supaya peserta bisa saling menghubungi.
+
+### Pembaruan data peserta
+
+Peserta bisa mengubah nomor HP dan isiannya sendiri lewat fungsi `ubah_data_saya`, dengan token di HP. Nomor HP yang sudah dipakai peserta lain di trip yang sama ditolak.
+
 ## Kredensial
 
 - Tidak ada password atau kunci privat di repo. File `.env*.local` masuk `.gitignore`.

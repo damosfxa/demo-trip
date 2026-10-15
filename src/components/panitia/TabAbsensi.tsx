@@ -6,6 +6,7 @@ import { pesanError, supabase } from "@/lib/supabase";
 import type { Peserta } from "@/lib/types";
 import { relatif } from "@/lib/waktu";
 import type { PropsTab } from "./PanelTrip";
+import { DaftarHadir } from "./DaftarHadir";
 import { Kartu, field, tombol, tombolGaris } from "./ui";
 
 type Hasil = { ok: boolean; judul: string; isi: string };
@@ -17,6 +18,7 @@ export function TabAbsensi({ data, bisaUbah, muatUlang }: PropsTab) {
   const [hasil, setHasil] = useState<Hasil | null>(null);
   const [cari, setCari] = useState("");
   const [lihat, setLihat] = useState<"belum" | "hadir">("belum");
+  const [cetak, setCetak] = useState(false);
 
   const hadirIds = new Set(absen.filter((a) => a.titik === titik).map((a) => a.participant_id));
   const hadir = peserta.filter((p) => hadirIds.has(p.id));
@@ -61,6 +63,7 @@ export function TabAbsensi({ data, bisaUbah, muatUlang }: PropsTab) {
           <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Akun demo hanya bisa melihat. Scan absensi untuk akun panitia.</p>
         )}
         {scan && <Pemindai onHasil={saatScan} />}
+        <button onClick={() => setCetak((c) => !c)} className={`${tombolGaris} w-full`}>{cetak ? "Tutup daftar hadir" : "Cetak daftar hadir (tanda tangan)"}</button>
         {hasil && (
           <div className={`rounded-2xl p-4 ${hasil.ok ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-red-50 ring-1 ring-red-200"}`}>
             <p className={`text-lg font-bold ${hasil.ok ? "text-emerald-800" : "text-red-700"}`}>{hasil.judul}</p>
@@ -69,7 +72,9 @@ export function TabAbsensi({ data, bisaUbah, muatUlang }: PropsTab) {
         )}
       </Kartu>
 
-      <Kartu className="space-y-3 !p-4">
+      {cetak && <DaftarHadir trip={trip} peserta={peserta} absen={absen} onTutup={() => setCetak(false)} />}
+
+      <Kartu className={`space-y-3 !p-4 ${cetak ? "hidden" : ""}`}>
         <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
           {(["belum", "hadir"] as const).map((k) => (
             <button key={k} onClick={() => setLihat(k)} className={`flex-1 rounded-lg py-2 text-sm font-semibold ${lihat === k ? "bg-white shadow-sm" : "text-slate-500"}`}>

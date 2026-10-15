@@ -7,6 +7,7 @@ import { pesanError, supabase } from "@/lib/supabase";
 import type { Trip, Zona } from "@/lib/types";
 import { LABEL_ZONA, rentangTanggal } from "@/lib/waktu";
 import { KerangkaDaftarTrip } from "../Kerangka";
+import { TimPanitia } from "./TimPanitia";
 import { Kartu, Label, field, tombol, tombolGaris } from "./ui";
 
 type TripRingkas = Trip & { jumlah: number };
@@ -18,6 +19,9 @@ function bacaSalinan(): TripRingkas[] | null {
     return null;
   }
 }
+
+/** Kode acak pendek untuk membedakan slug trip salinan. */
+const kodeAcak = () => Math.random().toString(36).slice(2, 6);
 
 const DEPT_AWAL = ["Keuangan", "HRD", "Marketing", "Operasional", "IT", "Lainnya"];
 
@@ -46,6 +50,48 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
     };
   }, [muat]);
 
+  // Salin trip sebagai titik awal: jadwal, info, checklist, FAQ, dan isian ikut disalin. Peserta tidak ikut.
+  const duplikat = async (t: TripRingkas) => {
+    const mulaiBaru = prompt(`Tanggal mulai trip baru (YYYY-MM-DD). Jadwal akan digeser sesuai selisihnya.`, t.mulai);
+    if (!mulaiBaru || !/^\d{4}-\d{2}-\d{2}$/.test(mulaiBaru)) return;
+    const selisihHari = Math.round((Date.parse(mulaiBaru + "T00:00:00Z") - Date.parse(t.mulai + "T00:00:00Z")) / 86400_000);
+    const geser = (iso: string) => new Date(Date.parse(iso) + selisihHari * 86400_000).toISOString();
+    const { data: asal, error: e1 } = await supabase.from("trips").select("*").eq("id", t.id).single();
+    if (e1) return alert(pesanError(e1));
+    const salin: Record<string, unknown> = { ...(asal as Record<string, unknown>) };
+    delete salin.id;
+    delete salin.created_at;
+    const { data: baru, error: e2 } = await supabase
+      .from("trips")
+      .insert({
+        ...salin,
+        slug: `${slugDari(t.nama)}-${kodeAcak()}`,
+        nama: `${t.nama} (salinan)`,
+        mulai: mulaiBaru,
+        selesai: new Date(Date.parse(t.selesai + "T00:00:00Z") + selisihHari * 86400_000).toISOString().slice(0, 10),
+        aktif: true,
+      })
+      .select("id")
+      .single();
+    if (e2) return alert(pesanError(e2));
+    const { data: agendaAsal } = await supabase.from("agenda").select("*").eq("trip_id", t.id);
+    if (agendaAsal && agendaAsal.length) {
+      const { error: e3 } = await supabase.from("agenda").insert(
+        agendaAsal.map((a) => ({
+          judul: a.judul,
+          lokasi: a.lokasi,
+          ket: a.ket,
+          zona: a.zona,
+          trip_id: baru.id,
+          mulai: geser(a.mulai),
+          selesai: a.selesai ? geser(a.selesai) : null,
+        })),
+      );
+      if (e3) return alert(pesanError(e3));
+    }
+    setMuat((x) => x + 1);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -53,22 +99,25 @@ export function DaftarTrip({ bisaUbah }: { bisaUbah: boolean }) {
         {bisaUbah && !baru && <button onClick={() => setBaru(true)} className={tombol}>+ Trip baru</button>}
       </div>
 
+      {bisaUbah && !baru && <TimPanitia />}
+
       {baru && <FormTripBaru onBatal={() => setBaru(false)} onSelesai={() => { setBaru(false); setMuat((x) => x + 1); }} />}
 
       {!trips ? (
         // Skeleton: daftar yang sama dari salinan terakhir, atau bentuk umum pada kunjungan pertama.
-        bacaSalinan()?.length ? <div className="mode-kerangka space-y-4" aria-busy="true">{bacaSalinan()!.map((t) => <BarisTrip key={t.id} t={t} />)}</div> : <KerangkaDaftarTrip />
+        bacaSalinan()?.length ? <div className="mode-kerangka space-y-4" aria-busy="true">{bacaSalinan()!.map((t) => <BarisTrip key={t.id} t={t} bisaUbah={false} onDuplikat={() => {}} />)}</div> : <KerangkaDaftarTrip />
       ) : trips.length === 0 ? (
         <Kartu><p className="text-center text-slate-500">Belum ada trip.</p></Kartu>
       ) : (
-        trips.map((t) => <BarisTrip key={t.id} t={t} />)
+        trips.map((t) => <BarisTrip key={t.id} t={t} bisaUbah={bisaUbah} onDuplikat={() => duplikat(t)} />)
       )}
     </div>
   );
 }
 
-function BarisTrip({ t }: { t: TripRingkas }) {
+function BarisTrip({ t, bisaUbah, onDuplikat }: { t: TripRingkas; bisaUbah: boolean; onDuplikat: () => void }) {
   return (
+    <div className="space-y-2">
     <Link href={`/panitia?trip=${t.id}`} className="block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5 hover:ring-laut-300">
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -79,6 +128,12 @@ function BarisTrip({ t }: { t: TripRingkas }) {
       </div>
       <p className="mt-3 text-sm"><span className="text-2xl font-extrabold text-laut-700">{t.jumlah}</span> peserta terdaftar</p>
     </Link>
+    {bisaUbah && (
+      <div className="flex justify-end">
+        <button onClick={onDuplikat} className="text-sm font-semibold text-laut-700">Duplikat sebagai trip baru</button>
+      </div>
+    )}
+    </div>
   );
 }
 
